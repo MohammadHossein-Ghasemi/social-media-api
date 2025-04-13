@@ -40,7 +40,7 @@ public class Post {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToMany(mappedBy = "comment",cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "post",cascade = CascadeType.ALL)
     private Set<Comment> comments;
 
     @OneToMany(mappedBy = "post",cascade = CascadeType.ALL)

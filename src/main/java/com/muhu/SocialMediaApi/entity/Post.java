@@ -19,7 +19,7 @@ import java.util.Set;
 @Table(name = "post")
 public class Post {
     @Id
-    @SequenceGenerator(sequenceName = "posr_seq",name = "p_seq",allocationSize = 1)
+    @SequenceGenerator(sequenceName = "post_seq",name = "p_seq",allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.AUTO,generator = "p_seq")
     @Column(unique = true,updatable = false,nullable = false)
     private Long id;

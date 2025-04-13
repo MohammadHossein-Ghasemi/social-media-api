@@ -1,6 +1,19 @@
 spring:
   application:
     name: SocialMediaApi
+  datasource:
+    username: muhu
+    password: password
+    url: jdbc:postgresql://localhost:5432/socialmedia
+  jpa:
+    database: postgresql
+    show-sql: true
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql : true
+
 logging:
   pattern:
     console:  ${LOGPATTERN_CONSOLE:%green(%d{HH:mm:ss.SSS}) %blue(%-5level) %red([%thread]) %yellow(%logger{15}) - %msg%n}

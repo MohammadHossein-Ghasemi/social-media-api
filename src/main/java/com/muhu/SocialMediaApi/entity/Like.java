@@ -3,15 +3,13 @@ package com.muhu.SocialMediaApi.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.Set;
-
 @Getter
 @Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity(name = "like")
-@Table(name = "like")
+@Table(name = "user_like")
 public class Like {
     @Id
     @SequenceGenerator(sequenceName = "like_seq",name = "l_seq",allocationSize = 1)

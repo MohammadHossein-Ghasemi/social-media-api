@@ -39,7 +39,7 @@ CREATE TABLE post (
 
 CREATE SEQUENCE post_seq start with 1 increment by 1;
 
-CREATE TABLE "like" (
+CREATE TABLE user_like (
     id BIGINT NOT NULL PRIMARY KEY ,
     user_id BIGINT NOT NULL ,
     post_id BIGINT NOT NULL ,

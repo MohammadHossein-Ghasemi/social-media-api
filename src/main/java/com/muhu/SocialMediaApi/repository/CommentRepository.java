@@ -28,11 +28,25 @@ public interface CommentRepository extends JpaRepository<Comment , Long> {
             "LEFT JOIN FETCH c.user " +
             "LEFT JOIN FETCH c.post " +
             "WHERE c.user.id = :user_id")
-    List<Comment> findByUserId (@NonNull @Param("user_id") Long userId);
+    List<Comment> findAllByUserId (@NonNull @Param("user_id") Long userId);
+
+    @Query("SELECT c FROM comment c " +
+            "LEFT JOIN FETCH c.user " +
+            "LEFT JOIN FETCH c.post " +
+            "WHERE c.user.email = :user_email")
+    List<Comment> findAllByUserEmail (@NonNull @Param("user_email") String userEmail);
 
     @Query("SELECT c FROM comment c " +
             "LEFT JOIN FETCH c.user " +
             "LEFT JOIN FETCH c.post " +
             "WHERE c.post.id = :post_id")
-    List<Comment> findByPostId (@NonNull @Param("post_id") Long postId);
+    List<Comment> findAllByPostId (@NonNull @Param("post_id") Long postId);
+
+    @Query("DELETE FROM comment c " +
+            "WHERE c.user.email = :user_email")
+    void deleteByUserEmail(@NonNull @Param("user_email") String userEmail);
+
+    @Query("DELETE FROM comment c " +
+            "WHERE c.post.id = :post_id")
+    void deleteByPostId(@NonNull @Param("post_id") Long postId);
 }

@@ -33,6 +33,12 @@ public interface LikeRepository extends JpaRepository<Like , Long> {
     @Query("SELECT l FROM like l " +
             "LEFT JOIN FETCH l.user " +
             "LEFT JOIN FETCH l.post " +
+            "WHERE l.user.email = :user_email")
+    List<Like> findByUserEmail (@NonNull @Param("user_email") String userEmail);
+
+    @Query("SELECT l FROM like l " +
+            "LEFT JOIN FETCH l.user " +
+            "LEFT JOIN FETCH l.post " +
             "WHERE l.post.id = :post_id")
     List<Like> findByPostId (@NonNull @Param("post_id") Long postId);
 }

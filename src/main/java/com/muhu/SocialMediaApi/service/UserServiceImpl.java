@@ -1,0 +1,123 @@
+package com.muhu.SocialMediaApi.service;
+
+import com.muhu.SocialMediaApi.entity.User;
+import com.muhu.SocialMediaApi.exception.DuplicateException;
+import com.muhu.SocialMediaApi.exception.ResourceNotFoundException;
+import com.muhu.SocialMediaApi.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
+
+@Service
+@RequiredArgsConstructor
+public class UserServiceImpl implements UserService {
+    private final UserRepository userRepository;
+
+    @Override
+    public User saveUser(User user) {
+        if (!userRepository.existsByEmail(user.getEmail())){
+            throw new DuplicateException();
+        }
+        return userRepository.save(user);
+    }
+
+    @Override
+    public Boolean deleteUserById(Long userId) {
+        if (!userRepository.existsById(userId)){
+            throw new ResourceNotFoundException("There is no user with ID : " + userId);
+        }
+        userRepository.deleteById(userId);
+        return true;
+    }
+
+    @Override
+    public Boolean deleteUserByEmail(String email) {
+        if (!userRepository.existsByEmail(email)){
+            throw new ResourceNotFoundException("There is no user with Email : " + email);
+        }
+        userRepository.deleteByEmail(email);
+        return true;
+    }
+
+    @Override
+    public User updateUser(String email, User user) {
+        AtomicReference<User> updatedUser= new AtomicReference<>();
+
+          userRepository.findByEmail(email).ifPresentOrElse(
+                foundedUser->{
+                    updateNonNullFields(foundedUser,user);
+                    updatedUser.set(userRepository.save(foundedUser));
+                },
+                ()-> {throw new ResourceNotFoundException("There is no user with Email : " + user.getEmail()+
+                        " and ID : "+user.getId());}
+        );
+        return updatedUser.get();
+    }
+
+    @Override
+    public List<User> getAllUser() {
+        return userRepository.findAll();
+    }
+
+    @Override
+    public User getUserById(Long userId) {
+        return userRepository.findById(userId).orElseThrow(() ->
+                new ResourceNotFoundException("There is no user with ID : "+userId));
+    }
+
+    @Override
+    public User getUserByEmail(String email) {
+        return userRepository.findByEmail(email).orElseThrow(()->
+                new ResourceNotFoundException("There is no user with Email : " + email));
+    }
+
+    @Override
+    public List<User> getAllUserFollowersById(Long userId) {
+        boolean checkUserExists = userRepository.existsById(userId);
+        if (!checkUserExists){
+            throw new ResourceNotFoundException("There is no user with ID : "+userId);
+        }
+        return userRepository.findAllFollowersBYId(userId);
+    }
+
+    @Override
+    public List<User> getAllUserFollowingById(Long userId) {
+        boolean checkUserExists = userRepository.existsById(userId);
+        if (!checkUserExists){
+            throw new ResourceNotFoundException("There is no user with ID : "+userId);
+        }
+        return userRepository.findAllFollowingById(userId);
+    }
+
+    @Override
+    public List<User> getAllUserFollowersByEmail(String email) {
+        if (!userRepository.existsByEmail(email)){
+            throw new ResourceNotFoundException("There is no user with Email : " + email);
+        }
+        return userRepository.findAllFollowersByEmail(email);
+    }
+
+    @Override
+    public List<User> getAllUserFollowingByEmail(String email) {
+        if (!userRepository.existsByEmail(email)){
+            throw new ResourceNotFoundException("There is no user with Email : " + email);
+        }
+        return userRepository.findAllFollowingByEmail(email);
+    }
+
+    private void updateNonNullFields(User updatedUser , User inputUser){
+        if(inputUser.getId() != null)updatedUser.setId(inputUser.getId());
+        if(inputUser.getEmail() != null)updatedUser.setEmail(inputUser.getEmail());
+        if(inputUser.getUsername() != null)updatedUser.setUsername(inputUser.getUsername());
+        if(inputUser.getBio() != null)updatedUser.setBio(inputUser.getBio());
+        if(inputUser.getProfilePictureUrl() != null)updatedUser.setProfilePictureUrl(inputUser.getProfilePictureUrl());
+        if(inputUser.getPosts() != null)updatedUser.setPosts(inputUser.getPosts());
+        if(inputUser.getFollowers() != null)updatedUser.setFollowers(inputUser.getFollowers());
+        if(inputUser.getFollowing() != null)updatedUser.setFollowing(inputUser.getFollowing());
+        if(inputUser.getLikes() != null)updatedUser.setLikes(inputUser.getLikes());
+        if(inputUser.getNotifications() != null)updatedUser.setNotifications(inputUser.getNotifications());
+        if(inputUser.getComments() != null)updatedUser.setComments(inputUser.getComments());
+    }
+}

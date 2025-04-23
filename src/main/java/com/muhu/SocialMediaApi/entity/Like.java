@@ -1,6 +1,7 @@
 package com.muhu.SocialMediaApi.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 @Getter
@@ -19,9 +20,11 @@ public class Like {
 
     @ManyToOne
     @JoinColumn(name = "user_id",nullable = false)
+    @NotNull
     private User user;
 
     @ManyToOne
     @JoinColumn(name = "post_id",nullable = false)
+    @NotNull
     private Post post;
 }

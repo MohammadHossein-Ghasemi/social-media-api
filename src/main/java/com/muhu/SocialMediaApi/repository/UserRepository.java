@@ -55,10 +55,24 @@ public interface UserRepository extends JpaRepository<User,Long> {
     @Query("SELECT u FROM user u " +
             "LEFT JOIN FETCH u.followers " +
             "WHERE u.id = :user_id" )
-    List<User> findAllFollowers(@NonNull @Param("user_id") Long userId);
+    List<User> findAllFollowersBYId(@NonNull @Param("user_id") Long userId);
 
     @Query("SELECT u FROM user u " +
             "LEFT JOIN FETCH u.following "+
             "WHERE u.id = :user_id")
-    List<User> findAllFollowing(@NonNull @Param("user_id") Long userId);
+    List<User> findAllFollowingById(@NonNull @Param("user_id") Long userId);
+
+    @Query("SELECT u FROM user u " +
+            "LEFT JOIN FETCH u.followers " +
+            "WHERE u.email = :email" )
+    List<User> findAllFollowersByEmail(@NonNull @Param("email") String email);
+
+    @Query("SELECT u FROM user u " +
+            "LEFT JOIN FETCH u.following "+
+            "WHERE u.email = :email")
+    List<User> findAllFollowingByEmail(@NonNull @Param("email") String email);
+
+    boolean existsByEmail(@NonNull String email);
+
+    void deleteByEmail(String email);
 }

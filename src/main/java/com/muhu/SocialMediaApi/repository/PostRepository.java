@@ -32,4 +32,11 @@ public interface PostRepository extends JpaRepository<Post , Long> {
             "LEFT JOIN FETCH p.likes " +
             "WHERE p.user.id = :user_id")
     List<Post> findByUserId (@NonNull @Param("user_id") Long userId);
+
+    @Query("SELECT p FROM post p " +
+            "LEFT JOIN FETCH p.user " +
+            "LEFT JOIN FETCH p.comments " +
+            "LEFT JOIN FETCH p.likes " +
+            "WHERE p.user.email = :user_email")
+    List<Post> findByUserEmail (@NonNull @Param("user_email") String userEmail);
 }

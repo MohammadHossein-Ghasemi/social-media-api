@@ -26,4 +26,17 @@ public interface NotificationRepository extends JpaRepository<Notification,Long>
             "LEFT JOIN FETCH n.user "+
             "WHERE n.user.id = :user_id")
     List<Notification> findByUserId (@NonNull @Param("user_id") Long userId);
+
+    @Query("SELECT n FROM notification n " +
+            "LEFT JOIN FETCH n.user "+
+            "WHERE n.user.email = :user_email")
+    List<Notification> findByUserEmail (@NonNull @Param("user_email") String userEmail);
+
+    @Query("DELETE FROM notification n " +
+            "WHERE n.user.id = :user_id")
+    void deleteByUserId(@NonNull @Param("user_id") Long userId);
+
+    @Query("DELETE FROM notification n " +
+            "WHERE n.user.email = :user_email")
+    void deleteByUserEmail(@NonNull @Param("user_email") String userEmail);
 }

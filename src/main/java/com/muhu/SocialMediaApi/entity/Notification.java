@@ -2,6 +2,7 @@ package com.muhu.SocialMediaApi.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -33,5 +34,6 @@ public class Notification {
 
     @ManyToOne
     @JoinColumn(name = "user_id",nullable = false)
+    @NotNull
     private User user;
 }

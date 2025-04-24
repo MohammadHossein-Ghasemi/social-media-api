@@ -98,4 +98,30 @@ class PostRepositoryTest {
         assertThat(postList).isNotNull();
         assertThat(postList.size()).isEqualTo(1);
     }
+
+    @Test
+    void findByUserEmail(){
+        User user = User.builder()
+                .username("muhu")
+                .email("muhu@emaple.com")
+                .password("asfbbgfbgnhmj,hgmhng")
+                .build();
+
+        User savedUser = userRepository.save(user);
+
+        Post post = Post.builder()
+                .content("Test Content.")
+                .user(savedUser)
+                .build();
+
+        Post savedPost = repositoryUnderTest.save(post);
+
+        assertThat(savedPost).isNotNull();
+        assertThat(savedPost.getId()).isNotNull();
+
+        List<Post> postList = repositoryUnderTest.findByUserEmail(savedUser.getEmail());
+
+        assertThat(postList).isNotNull();
+        assertThat(postList.size()).isEqualTo(1);
+    }
 }

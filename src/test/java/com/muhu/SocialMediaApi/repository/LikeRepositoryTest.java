@@ -122,6 +122,38 @@ class LikeRepositoryTest {
     }
 
     @Test
+    void findByUserEmail() {
+        User user = User.builder()
+                .username("muhu")
+                .email("muhu@emaple.com")
+                .password("asfbbgfbgnhmj,hgmhng")
+                .build();
+
+        User savedUser = userRepository.save(user);
+
+        Post post = Post.builder()
+                .content("Test Content.")
+                .user(savedUser)
+                .build();
+
+        Post savedPost = postRepository.save(post);
+
+        Like like = Like.builder()
+                .post(savedPost)
+                .user(savedUser)
+                .build();
+
+        Like savedLike = repositoryUnderTest.save(like);
+        assertThat(savedLike).isNotNull();
+        assertThat(savedLike.getId()).isNotNull();
+
+        List<Like> likeList = repositoryUnderTest.findByUserEmail(savedUser.getEmail());
+
+        assertThat(likeList).isNotNull();
+        assertThat(likeList.size()).isEqualTo(1);
+    }
+
+    @Test
     void findByPostId() {
         User user = User.builder()
                 .username("muhu")

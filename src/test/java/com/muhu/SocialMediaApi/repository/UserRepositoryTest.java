@@ -93,7 +93,7 @@ class UserRepositoryTest {
     }
 
     @Test
-    void findAllFollowers() {
+    void findAllFollowersById() {
         User follower = User.builder()
                 .username("muhu_1")
                 .email("muhu_1@emaple.com")
@@ -117,14 +117,14 @@ class UserRepositoryTest {
         assertThat(savedUser).isNotNull();
         assertThat(savedUser.getId()).isNotNull();
 
-        List<User> userFollowers = repositoryUnderTest.findAllFollowers(savedUser.getId());
+        List<User> userFollowers = repositoryUnderTest.findAllFollowersById(savedUser.getId());
 
         assertThat(userFollowers).isNotNull();
         assertThat(userFollowers.size()).isEqualTo(1);
     }
 
     @Test
-    void findAllFollowing() {
+    void findAllFollowingById() {
         User following = User.builder()
                 .username("muhu_1")
                 .email("muhu_1@emaple.com")
@@ -148,9 +148,109 @@ class UserRepositoryTest {
         assertThat(savedUser).isNotNull();
         assertThat(savedUser.getId()).isNotNull();
 
-        List<User> userFollowing = repositoryUnderTest.findAllFollowing(savedUser.getId());
+        List<User> userFollowing = repositoryUnderTest.findAllFollowingById(savedUser.getId());
 
         assertThat(userFollowing).isNotNull();
         assertThat(userFollowing.size()).isEqualTo(1);
+    }
+
+    @Test
+    void findAllFollowersByEmail(){
+        User follower = User.builder()
+                .username("muhu_1")
+                .email("muhu_1@emaple.com")
+                .password("asfbbgfbgnhmj,hgmhng")
+                .build();
+
+        User savedFollower = repositoryUnderTest.save(follower);
+
+        assertThat(savedFollower).isNotNull();
+        assertThat(savedFollower.getId()).isNotNull();
+
+        User user = User.builder()
+                .username("muhu")
+                .email("muhu@emaple.com")
+                .password("asfbbgfbgnhmj,hgmhng")
+                .followers(Set.of(savedFollower))
+                .build();
+
+        User savedUser = repositoryUnderTest.save(user);
+
+        assertThat(savedUser).isNotNull();
+        assertThat(savedUser.getId()).isNotNull();
+
+        List<User> userFollowers = repositoryUnderTest.findAllFollowersByEmail(savedUser.getEmail());
+
+        assertThat(userFollowers).isNotNull();
+        assertThat(userFollowers.size()).isEqualTo(1);
+    }
+
+    @Test
+    void findAllFollowingByEmail(){
+        User following = User.builder()
+                .username("muhu_1")
+                .email("muhu_1@emaple.com")
+                .password("asfbbgfbgnhmj,hgmhng")
+                .build();
+
+        User savedFollowing = repositoryUnderTest.save(following);
+
+        assertThat(savedFollowing).isNotNull();
+        assertThat(savedFollowing.getId()).isNotNull();
+
+        User user = User.builder()
+                .username("muhu")
+                .email("muhu@emaple.com")
+                .password("asfbbgfbgnhmj,hgmhng")
+                .following(Set.of(savedFollowing))
+                .build();
+
+        User savedUser = repositoryUnderTest.save(user);
+
+        assertThat(savedUser).isNotNull();
+        assertThat(savedUser.getId()).isNotNull();
+
+        List<User> userFollowing = repositoryUnderTest.findAllFollowingByEmail(savedUser.getEmail());
+
+        assertThat(userFollowing).isNotNull();
+        assertThat(userFollowing.size()).isEqualTo(1);
+    }
+
+    @Test
+    void existsByEmail(){
+        User user = User.builder()
+                .username("muhu")
+                .email("muhu@emaple.com")
+                .password("asfbbgfbgnhmj,hgmhng")
+                .build();
+
+        User savedUser = repositoryUnderTest.save(user);
+
+        assertThat(savedUser).isNotNull();
+        assertThat(savedUser.getId()).isNotNull();
+
+        boolean result = repositoryUnderTest.existsByEmail(user.getEmail());
+
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    void deleteByEmail(){
+        User user = User.builder()
+                .username("muhu")
+                .email("muhu@emaple.com")
+                .password("asfbbgfbgnhmj,hgmhng")
+                .build();
+
+        User savedUser = repositoryUnderTest.save(user);
+
+        assertThat(savedUser).isNotNull();
+        assertThat(savedUser.getId()).isNotNull();
+
+        repositoryUnderTest.deleteByEmail(savedUser.getEmail());
+
+        boolean result = repositoryUnderTest.existsByEmail(user.getEmail());
+
+        assertThat(result).isFalse();
     }
 }

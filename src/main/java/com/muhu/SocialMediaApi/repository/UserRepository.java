@@ -55,7 +55,7 @@ public interface UserRepository extends JpaRepository<User,Long> {
     @Query("SELECT u FROM user u " +
             "LEFT JOIN FETCH u.followers " +
             "WHERE u.id = :user_id" )
-    List<User> findAllFollowersBYId(@NonNull @Param("user_id") Long userId);
+    List<User> findAllFollowersById(@NonNull @Param("user_id") Long userId);
 
     @Query("SELECT u FROM user u " +
             "LEFT JOIN FETCH u.following "+

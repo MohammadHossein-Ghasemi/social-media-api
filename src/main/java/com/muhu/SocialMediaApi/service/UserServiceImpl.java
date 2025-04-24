@@ -79,7 +79,7 @@ public class UserServiceImpl implements UserService {
         if (!checkUserExists){
             throw new ResourceNotFoundException("There is no user with ID : "+userId);
         }
-        return userRepository.findAllFollowersBYId(userId);
+        return userRepository.findAllFollowersById(userId);
     }
 
     @Override

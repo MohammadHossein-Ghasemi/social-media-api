@@ -91,7 +91,7 @@ class CommentRepositoryTest {
     }
 
     @Test
-    void findByUserId() {
+    void findAllByUserId() {
         User user = User.builder()
                 .username("muhu")
                 .email("muhu@emaple.com")
@@ -117,14 +117,14 @@ class CommentRepositoryTest {
         assertThat(savedComment).isNotNull();
         assertThat(savedComment.getId()).isNotNull();
 
-        List<Comment> commentList = repositoryUnderTest.findByUserId(savedUser.getId());
+        List<Comment> commentList = repositoryUnderTest.findAllByUserId(savedUser.getId());
 
         assertThat(commentList).isNotNull();
         assertThat(commentList.size()).isEqualTo(1);
     }
 
     @Test
-    void findByPostId() {
+    void findAllByUserEmail(){
         User user = User.builder()
                 .username("muhu")
                 .email("muhu@emaple.com")
@@ -150,9 +150,110 @@ class CommentRepositoryTest {
         assertThat(savedComment).isNotNull();
         assertThat(savedComment.getId()).isNotNull();
 
-        List<Comment> commentList = repositoryUnderTest.findByPostId(savedPost.getId());
+        List<Comment> commentList = repositoryUnderTest.findAllByUserEmail(savedUser.getEmail());
 
         assertThat(commentList).isNotNull();
         assertThat(commentList.size()).isEqualTo(1);
+    }
+
+    @Test
+    void findAllByPostId() {
+        User user = User.builder()
+                .username("muhu")
+                .email("muhu@emaple.com")
+                .password("asfbbgfbgnhmj,hgmhng")
+                .build();
+
+        User savedUser = userRepository.save(user);
+
+        Post post = Post.builder()
+                .content("Test Content.")
+                .user(savedUser)
+                .build();
+
+        Post savedPost = postRepository.save(post);
+
+        Comment comment = Comment.builder()
+                .content("Test Comment .")
+                .post(savedPost)
+                .user(savedUser)
+                .build();
+
+        Comment savedComment = repositoryUnderTest.save(comment);
+        assertThat(savedComment).isNotNull();
+        assertThat(savedComment.getId()).isNotNull();
+
+        List<Comment> commentList = repositoryUnderTest.findAllByPostId(savedPost.getId());
+
+        assertThat(commentList).isNotNull();
+        assertThat(commentList.size()).isEqualTo(1);
+    }
+
+    @Test
+    void deleteByUserEmail(){
+        User user = User.builder()
+                .username("muhu")
+                .email("muhu@emaple.com")
+                .password("asfbbgfbgnhmj,hgmhng")
+                .build();
+
+        User savedUser = userRepository.save(user);
+
+        Post post = Post.builder()
+                .content("Test Content.")
+                .user(savedUser)
+                .build();
+
+        Post savedPost = postRepository.save(post);
+
+        Comment comment = Comment.builder()
+                .content("Test Comment .")
+                .post(savedPost)
+                .user(savedUser)
+                .build();
+
+        Comment savedComment = repositoryUnderTest.save(comment);
+        assertThat(savedComment).isNotNull();
+        assertThat(savedComment.getId()).isNotNull();
+
+        repositoryUnderTest.deleteByUserEmail(savedUser.getEmail());
+
+        boolean result = repositoryUnderTest.existsById(savedComment.getId());
+
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    void deleteByPostId(){
+        User user = User.builder()
+                .username("muhu")
+                .email("muhu@emaple.com")
+                .password("asfbbgfbgnhmj,hgmhng")
+                .build();
+
+        User savedUser = userRepository.save(user);
+
+        Post post = Post.builder()
+                .content("Test Content.")
+                .user(savedUser)
+                .build();
+
+        Post savedPost = postRepository.save(post);
+
+        Comment comment = Comment.builder()
+                .content("Test Comment .")
+                .post(savedPost)
+                .user(savedUser)
+                .build();
+
+        Comment savedComment = repositoryUnderTest.save(comment);
+        assertThat(savedComment).isNotNull();
+        assertThat(savedComment.getId()).isNotNull();
+
+        repositoryUnderTest.deleteByPostId(savedPost.getId());
+
+        boolean result = repositoryUnderTest.existsById(savedComment.getId());
+
+        assertThat(result).isFalse();
     }
 }

@@ -17,7 +17,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User saveUser(User user) {
-        if (!userRepository.existsByEmail(user.getEmail())){
+        if (userRepository.existsByEmail(user.getEmail())){
             throw new DuplicateException();
         }
         return userRepository.save(user);
@@ -50,7 +50,7 @@ public class UserServiceImpl implements UserService {
                     updateNonNullFields(foundedUser,user);
                     updatedUser.set(userRepository.save(foundedUser));
                 },
-                ()-> {throw new ResourceNotFoundException("There is no user with Email : " + user.getEmail()+
+                ()-> {throw new ResourceNotFoundException("There is no user with Email : " + email+
                         " and ID : "+user.getId());}
         );
         return updatedUser.get();
@@ -75,8 +75,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<User> getAllUserFollowersById(Long userId) {
-        boolean checkUserExists = userRepository.existsById(userId);
-        if (!checkUserExists){
+        if (!userRepository.existsById(userId)){
             throw new ResourceNotFoundException("There is no user with ID : "+userId);
         }
         return userRepository.findAllFollowersById(userId);
@@ -84,8 +83,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<User> getAllUserFollowingById(Long userId) {
-        boolean checkUserExists = userRepository.existsById(userId);
-        if (!checkUserExists){
+        if (!userRepository.existsById(userId)){
             throw new ResourceNotFoundException("There is no user with ID : "+userId);
         }
         return userRepository.findAllFollowingById(userId);

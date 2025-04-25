@@ -1,14 +1,12 @@
 package com.muhu.SocialMediaApi.service;
 
 import com.muhu.SocialMediaApi.entity.Like;
-import com.muhu.SocialMediaApi.entity.Post;
-import com.muhu.SocialMediaApi.entity.User;
 import com.muhu.SocialMediaApi.exception.ResourceNotFoundException;
 import com.muhu.SocialMediaApi.repository.LikeRepository;
 import com.muhu.SocialMediaApi.repository.PostRepository;
 import com.muhu.SocialMediaApi.repository.UserRepository;
+import com.muhu.SocialMediaApi.service.validation.Validation;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,10 +18,11 @@ public class LikeServiceImpl implements LikeService {
     private final LikeRepository likeRepository;
     private final UserRepository userRepository;
     private final PostRepository postRepository;
+    private final Validation validation;
     @Override
     public Like saveLike(Like like){
 
-        if (!userValidation(like.getUser()) || !postValidation(like.getPost())){
+        if (!validation.isUserValid(like.getUser()) || !validation.isPostValid(like.getPost())){
             return null;
         }
 
@@ -46,7 +45,7 @@ public class LikeServiceImpl implements LikeService {
         likeRepository.findById(likeId).ifPresentOrElse(
                 foundedLike->{
                     updateNonNullFields(foundedLike,like);
-                    updatedLike.set(likeRepository.save(like));
+                    updatedLike.set(likeRepository.save(foundedLike));
                 },
                 ()->{throw new ResourceNotFoundException("There is no like with ID : "+likeId);}
         );
@@ -86,44 +85,6 @@ public class LikeServiceImpl implements LikeService {
             throw new ResourceNotFoundException("There is no post with ID : "+postId);
         }
         return likeRepository.findByPostId(postId);
-    }
-
-    private boolean userValidation(User user)  {
-        if (user == null || user.getId() == null || user.getEmail() == null) {
-            try {
-                throw new BadRequestException("The use can not be null.");
-            } catch (BadRequestException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        Long userId = user.getId();
-        String userEmail = user.getEmail();
-
-        if (!userRepository.existsByEmail(userEmail)) {
-            throw new ResourceNotFoundException("There is no user with Email : " + userEmail);
-        } else if (!userRepository.existsById(userId)) {
-            throw new ResourceNotFoundException("There is no user with ID : " + userId);
-        }
-
-        return true;
-    }
-    private boolean postValidation(Post post){
-        if (post == null || post.getId() == null ){
-            try {
-                throw new BadRequestException("The post can not be null.");
-            } catch (BadRequestException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        Long postId = post.getId();
-
-        if (!postRepository.existsById(postId)) {
-            throw new ResourceNotFoundException("There is no post with ID : "+postId);
-        }
-
-        return true;
     }
 
     private void updateNonNullFields(Like updatedLike , Like inputLike){

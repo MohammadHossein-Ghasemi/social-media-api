@@ -5,7 +5,7 @@ import com.muhu.SocialMediaApi.entity.User;
 import com.muhu.SocialMediaApi.exception.ResourceNotFoundException;
 import com.muhu.SocialMediaApi.repository.PostRepository;
 import com.muhu.SocialMediaApi.repository.UserRepository;
-import com.muhu.SocialMediaApi.service.validation.UserValidation;
+import com.muhu.SocialMediaApi.service.validation.Validation;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,7 +26,7 @@ class PostServiceImplTest {
     private PostServiceImpl serviceUnderTest;
 
     @Mock
-    private UserValidation userValidation;
+    private Validation userValidation;
     @Mock
     private PostRepository postRepository;
     @Mock

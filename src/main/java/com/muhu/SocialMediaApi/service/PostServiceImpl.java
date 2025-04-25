@@ -4,7 +4,7 @@ import com.muhu.SocialMediaApi.entity.Post;
 import com.muhu.SocialMediaApi.exception.ResourceNotFoundException;
 import com.muhu.SocialMediaApi.repository.PostRepository;
 import com.muhu.SocialMediaApi.repository.UserRepository;
-import com.muhu.SocialMediaApi.service.validation.UserValidation;
+import com.muhu.SocialMediaApi.service.validation.Validation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -17,11 +17,11 @@ public class PostServiceImpl implements PostService {
 
     private final PostRepository postRepository;
     private final UserRepository userRepository;
-    private final UserValidation userValidation;
+    private final Validation Validation;
 
     @Override
     public Post savePost(Post post) {
-        if (!userValidation.isUserValid(post.getUser())){
+        if (!Validation.isUserValid(post.getUser())){
             return null;
         }
         return postRepository.save(post);

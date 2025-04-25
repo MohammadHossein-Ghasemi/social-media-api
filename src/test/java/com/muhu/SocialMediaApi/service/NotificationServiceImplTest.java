@@ -5,7 +5,7 @@ import com.muhu.SocialMediaApi.entity.User;
 import com.muhu.SocialMediaApi.exception.ResourceNotFoundException;
 import com.muhu.SocialMediaApi.repository.NotificationRepository;
 import com.muhu.SocialMediaApi.repository.UserRepository;
-import com.muhu.SocialMediaApi.service.validation.UserValidation;
+import com.muhu.SocialMediaApi.service.validation.Validation;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,7 +26,7 @@ class NotificationServiceImplTest {
     private NotificationServiceImpl serviceUnderTest;
 
     @Mock
-    UserValidation userValidation;
+    Validation Validation;
     @Mock
     UserRepository userRepository;
     @Mock
@@ -37,7 +37,7 @@ class NotificationServiceImplTest {
     @BeforeEach
     void setUp(){
         autoCloseable = MockitoAnnotations.openMocks(this);
-        serviceUnderTest = new NotificationServiceImpl(notificationRepository,userRepository,userValidation);
+        serviceUnderTest = new NotificationServiceImpl(notificationRepository,userRepository, Validation);
     }
 
     @AfterEach
@@ -57,7 +57,7 @@ class NotificationServiceImplTest {
                 .user(user)
                 .build();
 
-        when(userValidation.isUserValid(user)).thenReturn(true);
+        when(Validation.isUserValid(user)).thenReturn(true);
         when(notificationRepository.save(notification)).thenReturn(notification);
 
         Notification result = serviceUnderTest.saveNotif(notification);
@@ -80,7 +80,7 @@ class NotificationServiceImplTest {
                 .user(user)
                 .build();
 
-        when(userValidation.isUserValid(user)).thenReturn(false);
+        when(Validation.isUserValid(user)).thenReturn(false);
         when(notificationRepository.save(notification)).thenReturn(notification);
 
         Notification result = serviceUnderTest.saveNotif(notification);

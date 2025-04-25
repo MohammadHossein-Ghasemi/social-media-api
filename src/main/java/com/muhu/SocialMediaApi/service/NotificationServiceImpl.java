@@ -4,7 +4,7 @@ import com.muhu.SocialMediaApi.entity.Notification;
 import com.muhu.SocialMediaApi.exception.ResourceNotFoundException;
 import com.muhu.SocialMediaApi.repository.NotificationRepository;
 import com.muhu.SocialMediaApi.repository.UserRepository;
-import com.muhu.SocialMediaApi.service.validation.UserValidation;
+import com.muhu.SocialMediaApi.service.validation.Validation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -16,11 +16,11 @@ import java.util.concurrent.atomic.AtomicReference;
 public class NotificationServiceImpl implements NotificationService {
     private final NotificationRepository notificationRepository;
     private final UserRepository userRepository;
-    private final UserValidation userValidation;
+    private final Validation Validation;
 
     @Override
     public Notification saveNotif(Notification notification){
-        if(!userValidation.isUserValid(notification.getUser())){
+        if(!Validation.isUserValid(notification.getUser())){
             return null;
         }
         return notificationRepository.save(notification);

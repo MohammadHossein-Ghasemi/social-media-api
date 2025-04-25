@@ -1,12 +1,11 @@
 package com.muhu.SocialMediaApi.service;
 
 import com.muhu.SocialMediaApi.entity.Post;
-import com.muhu.SocialMediaApi.entity.User;
 import com.muhu.SocialMediaApi.exception.ResourceNotFoundException;
 import com.muhu.SocialMediaApi.repository.PostRepository;
 import com.muhu.SocialMediaApi.repository.UserRepository;
+import com.muhu.SocialMediaApi.service.validation.UserValidation;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,10 +17,11 @@ public class PostServiceImpl implements PostService {
 
     private final PostRepository postRepository;
     private final UserRepository userRepository;
+    private final UserValidation userValidation;
 
     @Override
-    public Post savePost(Post post) throws BadRequestException {
-        if (!userValidation(post.getUser())){
+    public Post savePost(Post post) {
+        if (!userValidation.isUserValid(post.getUser())){
             return null;
         }
         return postRepository.save(post);
@@ -76,26 +76,6 @@ public class PostServiceImpl implements PostService {
         return postRepository.findByUserEmail(userEmail);
     }
 
-    private boolean userValidation(User user)  {
-        if (user == null || user.getId() == null || user.getEmail() == null) {
-            try {
-                throw new BadRequestException("The use can not be null.");
-            } catch (BadRequestException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        Long userId = user.getId();
-        String userEmail = user.getEmail();
-
-        if (!userRepository.existsByEmail(userEmail)) {
-            throw new ResourceNotFoundException("There is no user with Email : " + userEmail);
-        } else if (!userRepository.existsById(userId)) {
-            throw new ResourceNotFoundException("There is no user with ID : " + userId);
-        }
-
-        return true;
-    }
     private void updateNonNullFields(Post updatedPost , Post inputPost){
         if (inputPost.getId() != null) updatedPost.setId(inputPost.getId());
         if (inputPost.getLikes() != null) updatedPost.setLikes(inputPost.getLikes());

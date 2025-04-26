@@ -1,14 +1,12 @@
 package com.muhu.SocialMediaApi.service;
 
 import com.muhu.SocialMediaApi.entity.Comment;
-import com.muhu.SocialMediaApi.entity.Post;
-import com.muhu.SocialMediaApi.entity.User;
 import com.muhu.SocialMediaApi.exception.ResourceNotFoundException;
 import com.muhu.SocialMediaApi.repository.CommentRepository;
 import com.muhu.SocialMediaApi.repository.PostRepository;
 import com.muhu.SocialMediaApi.repository.UserRepository;
+import com.muhu.SocialMediaApi.service.validation.Validation;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,10 +18,11 @@ public class CommentServiceImpl implements CommentService {
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
     private final PostRepository postRepository;
+    private final Validation validation;
 
     @Override
     public Comment saveComment(Comment comment) {
-        if (!userValidation(comment.getUser()) || !postValidation(comment.getPost())) {
+        if (!validation.isUserValid(comment.getUser()) || !validation.isPostValid(comment.getPost())) {
             return null;
         }
         return commentRepository.save(comment);
@@ -105,44 +104,6 @@ public class CommentServiceImpl implements CommentService {
         return commentRepository.findAllByPostId(postId);
     }
 
-    private boolean userValidation(User user)  {
-        if (user == null || user.getId() == null || user.getEmail() == null) {
-            try {
-                throw new BadRequestException("The use can not be null.");
-            } catch (BadRequestException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        Long userId = user.getId();
-        String userEmail = user.getEmail();
-
-        if (!userRepository.existsByEmail(userEmail)) {
-            throw new ResourceNotFoundException("There is no user with Email : " + userEmail);
-        } else if (!userRepository.existsById(userId)) {
-            throw new ResourceNotFoundException("There is no user with ID : " + userId);
-        }
-
-        return true;
-    }
-    private boolean postValidation(Post post){
-        if (post == null || post.getId() == null ){
-            try {
-                throw new BadRequestException("The post can not be null.");
-            } catch (BadRequestException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        Long postId = post.getId();
-
-        if (!postRepository.existsById(postId)) {
-            throw new ResourceNotFoundException("There is no post with ID : "+postId);
-        }
-
-        return true;
-    }
-
     private void updateNonNullFields(Comment updatedComment , Comment inputComment){
         if (inputComment.getId() != null) updatedComment.setId(inputComment.getId());
 
@@ -160,7 +121,6 @@ public class CommentServiceImpl implements CommentService {
 
             updatedComment.setUser(inputComment.getUser());
         }
-
 
         if (inputComment.getPost() != null) {
 

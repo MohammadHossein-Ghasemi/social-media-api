@@ -2,9 +2,11 @@ package com.muhu.SocialMediaApi.repository;
 
 import com.muhu.SocialMediaApi.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.lang.NonNull;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -53,7 +55,7 @@ public interface UserRepository extends JpaRepository<User,Long> {
     Optional<User> findByEmail(@NonNull @Param("email") String email);
 
     @Query("SELECT u FROM user u " +
-            "LEFT JOIN FETCH u.followers " +
+            "JOIN u.followers " +
             "WHERE u.id = :user_id" )
     List<User> findAllFollowersById(@NonNull @Param("user_id") Long userId);
 
@@ -74,5 +76,7 @@ public interface UserRepository extends JpaRepository<User,Long> {
 
     boolean existsByEmail(@NonNull String email);
 
+    @Transactional
+    @Modifying
     void deleteByEmail(String email);
 }

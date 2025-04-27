@@ -1,6 +1,9 @@
 package com.muhu.SocialMediaApi.controller;
 
 import com.muhu.SocialMediaApi.entity.User;
+import com.muhu.SocialMediaApi.mapper.UserMapper;
+import com.muhu.SocialMediaApi.model.UserDto;
+import com.muhu.SocialMediaApi.model.UserRegistrationDto;
 import com.muhu.SocialMediaApi.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -11,6 +14,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
+import static com.muhu.SocialMediaApi.mapper.UserMapper.*;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/user")
@@ -18,8 +23,8 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/register")
-    public ResponseEntity<?> userRegistration(@RequestBody User user){
-        User savedUser = userService.saveUser(user);
+    public ResponseEntity<?> userRegistration(@RequestBody UserRegistrationDto userRegistrationDto){
+        UserDto savedUser = userToUserDto(userService.saveUser(userRegistrationDtoToUser(userRegistrationDto)));
         if (null == savedUser){
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -69,7 +74,7 @@ public class UserController {
     @PutMapping("/update")
     public ResponseEntity<?> updateUser(@RequestParam String userEmail,
                                         @RequestBody User user){
-        User updatedUser = userService.updateUser(userEmail, user);
+        UserDto updatedUser = userToUserDto(userService.updateUser(userEmail, user)) ;
         if (null == updatedUser){
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -89,7 +94,9 @@ public class UserController {
 
     @GetMapping("/all")
     private ResponseEntity<?> getAllUser(){
-        List<User> allUser = userService.getAllUser();
+        List<UserDto> allUser = userService.getAllUser().stream()
+                .map(UserMapper::userToUserDto)
+                .toList();
         if (allUser.isEmpty()){
             return ResponseEntity
                     .status(HttpStatus.NO_CONTENT)
@@ -117,7 +124,7 @@ public class UserController {
 
     @GetMapping()
     public ResponseEntity<?> getUserByEmail(@RequestParam String userEmail){
-        User foundedUser = userService.getUserByEmail(userEmail);
+        UserDto foundedUser = userToUserDto(userService.getUserByEmail(userEmail));
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .header(HttpHeaders.LOCATION,"/api/user/")
@@ -130,7 +137,10 @@ public class UserController {
 
     @GetMapping("/followers/{userId}")
     public ResponseEntity<?> getAllUserFollowersById(@PathVariable Long userId){
-        List<User> allUserFollowersById = userService.getAllUserFollowersById(userId);
+        List<UserDto> allUserFollowersById = userService.getAllUserFollowersById(userId)
+                .stream()
+                .map(UserMapper::userToUserDto)
+                .toList();
         HttpStatus status = allUserFollowersById.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK;
         return ResponseEntity
                 .status(status)
@@ -140,7 +150,10 @@ public class UserController {
 
     @GetMapping("/following/{userId}")
     public ResponseEntity<?> getAllUserFollowingById(@PathVariable Long userId){
-        List<User> allUserFollowingById = userService.getAllUserFollowingById(userId);
+        List<UserDto> allUserFollowingById = userService.getAllUserFollowingById(userId)
+                .stream()
+                .map(UserMapper::userToUserDto)
+                .toList();
         HttpStatus status = allUserFollowingById.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK;
         return ResponseEntity
                 .status(status)
@@ -150,7 +163,10 @@ public class UserController {
 
     @GetMapping("/followers")
     public ResponseEntity<?> getAllUserFollowersByEmail(@RequestParam String userEmail){
-        List<User> allUserFollowersById = userService.getAllUserFollowersByEmail(userEmail);
+        List<UserDto> allUserFollowersById = userService.getAllUserFollowersByEmail(userEmail)
+                .stream()
+                .map(UserMapper::userToUserDto)
+                .toList();
         HttpStatus status = allUserFollowersById.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK;
         return ResponseEntity
                 .status(status)
@@ -160,7 +176,10 @@ public class UserController {
 
     @GetMapping("/following")
     public ResponseEntity<?> getAllUserFollowingByEmail(@RequestParam String userEmail){
-        List<User> allUserFollowingById = userService.getAllUserFollowingByEmail(userEmail);
+        List<UserDto> allUserFollowingById = userService.getAllUserFollowingByEmail(userEmail)
+                .stream()
+                .map(UserMapper::userToUserDto)
+                .toList();
         HttpStatus status = allUserFollowingById.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK;
         return ResponseEntity
                 .status(status)

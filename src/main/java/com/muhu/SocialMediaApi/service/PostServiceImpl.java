@@ -1,6 +1,7 @@
 package com.muhu.SocialMediaApi.service;
 
 import com.muhu.SocialMediaApi.entity.Post;
+import com.muhu.SocialMediaApi.entity.User;
 import com.muhu.SocialMediaApi.exception.ResourceNotFoundException;
 import com.muhu.SocialMediaApi.repository.PostRepository;
 import com.muhu.SocialMediaApi.repository.UserRepository;
@@ -17,13 +18,15 @@ public class PostServiceImpl implements PostService {
 
     private final PostRepository postRepository;
     private final UserRepository userRepository;
-    private final Validation Validation;
+    private final Validation validation;
 
     @Override
     public Post savePost(Post post) {
-        if (!Validation.isUserValid(post.getUser())){
+        User userValid = validation.isUserValid(post.getUser());
+        if (null == userValid){
             return null;
         }
+        post.setUser(userValid);
         return postRepository.save(post);
     }
 

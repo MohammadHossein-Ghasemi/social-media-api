@@ -1,12 +1,11 @@
 package com.muhu.SocialMediaApi.service;
 
 import com.muhu.SocialMediaApi.entity.Post;
-import org.apache.coyote.BadRequestException;
 
 import java.util.List;
 
 public interface PostService {
-    Post savePost(Post post) throws BadRequestException;
+    Post savePost(Post post);
     Boolean deletePostById(Long postId);
     Post updatePostById(Long postId, Post post);
     Post getPostById(Long postId);

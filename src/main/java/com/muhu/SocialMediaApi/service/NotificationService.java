@@ -1,12 +1,11 @@
 package com.muhu.SocialMediaApi.service;
 
 import com.muhu.SocialMediaApi.entity.Notification;
-import org.apache.coyote.BadRequestException;
 
 import java.util.List;
 
 public interface NotificationService {
-    Notification saveNotif(Notification notification) throws BadRequestException;
+    Notification saveNotif(Notification notification);
     Boolean deleteNotifById(Long notifId);
     Boolean deleteNotifByUserId(Long userId);
     Boolean deleteNotifByUserEmail(String userEmail);

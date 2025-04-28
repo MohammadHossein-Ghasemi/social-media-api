@@ -16,11 +16,11 @@ import java.util.concurrent.atomic.AtomicReference;
 public class NotificationServiceImpl implements NotificationService {
     private final NotificationRepository notificationRepository;
     private final UserRepository userRepository;
-    private final Validation Validation;
+    private final Validation validation;
 
     @Override
     public Notification saveNotif(Notification notification){
-        if(null!=Validation.isUserValid(notification.getUser())){
+        if(null == validation.isUserValid(notification.getUser())){
             return null;
         }
         return notificationRepository.save(notification);

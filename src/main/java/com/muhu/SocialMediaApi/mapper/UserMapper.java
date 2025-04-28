@@ -1,10 +1,7 @@
 package com.muhu.SocialMediaApi.mapper;
 
 import com.muhu.SocialMediaApi.entity.User;
-import com.muhu.SocialMediaApi.model.PostDto;
-import com.muhu.SocialMediaApi.model.UserDto;
-import com.muhu.SocialMediaApi.model.UserRegistrationDto;
-import com.muhu.SocialMediaApi.model.UserSummaryDto;
+import com.muhu.SocialMediaApi.model.*;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -26,6 +23,15 @@ public class UserMapper {
         Set<UserSummaryDto> followers ;
         Set<UserSummaryDto> following ;
         Set<PostDto> postDtos;
+        Set<NotificationDto> notificationDtos;
+
+        if (null != user.getNotifications()){
+            notificationDtos = user.getNotifications().stream()
+                    .map(NotificationMapper::notificationToNotificationDto)
+                    .collect(Collectors.toSet());
+        }else {
+            notificationDtos = Set.of();
+        }
 
         if (null != user.getPosts()){
             postDtos = user.getPosts().stream()
@@ -63,7 +69,7 @@ public class UserMapper {
                 .followers(followers)
                 .following(following)
                 .likes(user.getLikes())
-                .notifications(user.getNotifications())
+                .notifications(notificationDtos)
                 .comments(user.getComments())
                 .build();
     }

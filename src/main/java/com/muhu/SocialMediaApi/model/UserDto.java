@@ -23,6 +23,6 @@ public class UserDto {
     private Set<UserSummaryDto> followers;
     private Set<UserSummaryDto> following;
     private Set<Like> likes;
-    private Set<Notification> notifications;
+    private Set<NotificationDto> notifications;
     private Set<Comment> comments;
 }

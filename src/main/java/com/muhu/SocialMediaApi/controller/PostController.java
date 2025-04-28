@@ -25,7 +25,7 @@ public class PostController {
 
     @PostMapping("/save")
     public ResponseEntity<?> savePost(@RequestBody PostRegistrationDto postRegistrationDto){
-        Post savePost = postService.savePost(postRegistrationDtoToPost(postRegistrationDto));
+        PostDto savePost = postToPostDto(postService.savePost(postRegistrationDtoToPost(postRegistrationDto)));
         if (null == savePost){
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)

@@ -65,8 +65,8 @@ class LikeServiceImplTest {
                 .post(post)
                 .build();
 
-        when(validation.isUserValid(user)).thenReturn(true);
-        when(validation.isPostValid(post)).thenReturn(true);
+        when(validation.isUserValid(user)).thenReturn(user);
+        when(validation.isPostValid(post)).thenReturn(post);
         when(likeRepository.save(like)).thenReturn(like);
 
         Like result = serviceUnderTest.saveLike(like);
@@ -93,8 +93,8 @@ class LikeServiceImplTest {
                 .post(post)
                 .build();
 
-        when(validation.isUserValid(user)).thenReturn(false);
-        when(validation.isPostValid(post)).thenReturn(true);
+        when(validation.isUserValid(user)).thenReturn(null);
+        when(validation.isPostValid(post)).thenReturn(post);
         when(likeRepository.save(like)).thenReturn(like);
 
         Like result = serviceUnderTest.saveLike(like);
@@ -119,8 +119,8 @@ class LikeServiceImplTest {
                 .post(post)
                 .build();
 
-        when(validation.isUserValid(user)).thenReturn(true);
-        when(validation.isPostValid(post)).thenReturn(false);
+        when(validation.isUserValid(user)).thenReturn(user);
+        when(validation.isPostValid(post)).thenReturn(null);
         when(likeRepository.save(like)).thenReturn(like);
 
         Like result = serviceUnderTest.saveLike(like);
@@ -145,8 +145,8 @@ class LikeServiceImplTest {
                 .post(post)
                 .build();
 
-        when(validation.isUserValid(user)).thenReturn(false);
-        when(validation.isPostValid(post)).thenReturn(false);
+        when(validation.isUserValid(user)).thenReturn(null);
+        when(validation.isPostValid(post)).thenReturn(null);
         when(likeRepository.save(like)).thenReturn(like);
 
         Like result = serviceUnderTest.saveLike(like);

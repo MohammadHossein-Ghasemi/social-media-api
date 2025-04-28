@@ -22,7 +22,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public Comment saveComment(Comment comment) {
-        if (!validation.isUserValid(comment.getUser()) || !validation.isPostValid(comment.getPost())) {
+        if (null != validation.isUserValid(comment.getUser()) || null!=validation.isPostValid(comment.getPost())) {
             return null;
         }
         return commentRepository.save(comment);

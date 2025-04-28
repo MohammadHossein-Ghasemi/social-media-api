@@ -16,7 +16,7 @@ public class Validation {
     private final UserRepository userRepository ;
     private final PostRepository postRepository;
 
-    public boolean isUserValid(User user){
+    public User isUserValid(User user){
         if (user == null || user.getId() == null || user.getEmail() == null) {
             try {
                 throw new BadRequestException("The use can not be null.");
@@ -25,19 +25,11 @@ public class Validation {
             }
         }
 
-        Long userId = user.getId();
-        String userEmail = user.getEmail();
-
-        if (!userRepository.existsByEmail(userEmail)) {
-            throw new ResourceNotFoundException("There is no user with Email : " + userEmail);
-        } else if (!userRepository.existsById(userId)) {
-            throw new ResourceNotFoundException("There is no user with ID : " + userId);
-        }
-
-        return true;
+        return userRepository.findByEmail(user.getEmail()).orElseThrow(
+                ()-> new ResourceNotFoundException("There is no user with this profile."));
     }
 
-    public boolean isPostValid(Post post){
+    public Post isPostValid(Post post){
         if (post == null || post.getId() == null ){
             try {
                 throw new BadRequestException("The post can not be null.");
@@ -46,12 +38,7 @@ public class Validation {
             }
         }
 
-        Long postId = post.getId();
-
-        if (!postRepository.existsById(postId)) {
-            throw new ResourceNotFoundException("There is no post with ID : "+postId);
-        }
-
-        return true;
+        return postRepository.findById(post.getId()).orElseThrow(
+                ()-> new ResourceNotFoundException("There is no post with this profile."));
     }
 }

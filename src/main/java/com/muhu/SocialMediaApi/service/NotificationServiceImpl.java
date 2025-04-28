@@ -20,7 +20,7 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public Notification saveNotif(Notification notification){
-        if(!Validation.isUserValid(notification.getUser())){
+        if(null!=Validation.isUserValid(notification.getUser())){
             return null;
         }
         return notificationRepository.save(notification);

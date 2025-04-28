@@ -57,7 +57,7 @@ class NotificationServiceImplTest {
                 .user(user)
                 .build();
 
-        when(Validation.isUserValid(user)).thenReturn(true);
+        when(Validation.isUserValid(user)).thenReturn(user);
         when(notificationRepository.save(notification)).thenReturn(notification);
 
         Notification result = serviceUnderTest.saveNotif(notification);
@@ -80,7 +80,7 @@ class NotificationServiceImplTest {
                 .user(user)
                 .build();
 
-        when(Validation.isUserValid(user)).thenReturn(false);
+        when(Validation.isUserValid(user)).thenReturn(null);
         when(notificationRepository.save(notification)).thenReturn(notification);
 
         Notification result = serviceUnderTest.saveNotif(notification);

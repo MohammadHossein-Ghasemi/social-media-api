@@ -66,8 +66,8 @@ class CommentServiceImplTest {
                 .content("Test Content !!")
                 .build();
 
-        when(validation.isPostValid(post)).thenReturn(true);
-        when(validation.isUserValid(user)).thenReturn(true);
+        when(validation.isPostValid(post)).thenReturn(post);
+        when(validation.isUserValid(user)).thenReturn(user);
         when(commentRepository.save(any(Comment.class))).thenReturn(comment);
 
         Comment result = serviceUnderTest.saveComment(comment);
@@ -95,8 +95,8 @@ class CommentServiceImplTest {
                 .content("Test Content !!")
                 .build();
 
-        when(validation.isPostValid(post)).thenReturn(false);
-        when(validation.isUserValid(user)).thenReturn(true);
+        when(validation.isPostValid(post)).thenReturn(null);
+        when(validation.isUserValid(user)).thenReturn(user);
         when(commentRepository.save(any(Comment.class))).thenReturn(comment);
 
         Comment result = serviceUnderTest.saveComment(comment);
@@ -122,8 +122,8 @@ class CommentServiceImplTest {
                 .content("Test Content !!")
                 .build();
 
-        when(validation.isPostValid(post)).thenReturn(true);
-        when(validation.isUserValid(user)).thenReturn(false);
+        when(validation.isPostValid(post)).thenReturn(post);
+        when(validation.isUserValid(user)).thenReturn(null);
         when(commentRepository.save(any(Comment.class))).thenReturn(comment);
 
         Comment result = serviceUnderTest.saveComment(comment);
@@ -149,8 +149,8 @@ class CommentServiceImplTest {
                 .content("Test Content !!")
                 .build();
 
-        when(validation.isPostValid(post)).thenReturn(false);
-        when(validation.isUserValid(user)).thenReturn(false);
+        when(validation.isPostValid(post)).thenReturn(null);
+        when(validation.isUserValid(user)).thenReturn(null);
         when(commentRepository.save(any(Comment.class))).thenReturn(comment);
 
         Comment result = serviceUnderTest.saveComment(comment);

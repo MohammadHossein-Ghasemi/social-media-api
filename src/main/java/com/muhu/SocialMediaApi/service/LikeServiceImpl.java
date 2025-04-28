@@ -22,7 +22,7 @@ public class LikeServiceImpl implements LikeService {
     @Override
     public Like saveLike(Like like){
 
-        if (!validation.isUserValid(like.getUser()) || !validation.isPostValid(like.getPost())){
+        if (null!=validation.isUserValid(like.getUser()) || null!=validation.isPostValid(like.getPost())){
             return null;
         }
 

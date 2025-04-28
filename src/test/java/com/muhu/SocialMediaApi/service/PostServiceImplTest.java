@@ -58,7 +58,7 @@ class PostServiceImplTest {
                 .user(user)
                 .build();
 
-        when(userValidation.isUserValid(post.getUser())).thenReturn(true);
+        when(userValidation.isUserValid(post.getUser())).thenReturn(user);
         when(postRepository.save(post)).thenReturn(post);
 
         Post result = serviceUnderTest.savePost(post);
@@ -81,7 +81,7 @@ class PostServiceImplTest {
                 .user(user)
                 .build();
 
-        when(userValidation.isUserValid(post.getUser())).thenReturn(false);
+        when(userValidation.isUserValid(post.getUser())).thenReturn(null);
         when(postRepository.save(post)).thenReturn(post);
 
         Post result = serviceUnderTest.savePost(post);

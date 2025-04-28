@@ -19,7 +19,7 @@ public class UserDto {
     private String password;
     private String bio;
     private String profilePictureUrl;
-    private Set<Post> posts;
+    private Set<PostDto> posts;
     private Set<UserSummaryDto> followers;
     private Set<UserSummaryDto> following;
     private Set<Like> likes;

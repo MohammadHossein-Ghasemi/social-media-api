@@ -1,6 +1,9 @@
 package com.muhu.SocialMediaApi.controller;
 
 import com.muhu.SocialMediaApi.entity.Post;
+import com.muhu.SocialMediaApi.mapper.PostMapper;
+import com.muhu.SocialMediaApi.model.PostDto;
+import com.muhu.SocialMediaApi.model.PostRegistrationDto;
 import com.muhu.SocialMediaApi.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -11,6 +14,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
+import static com.muhu.SocialMediaApi.mapper.PostMapper.postRegistrationDtoToPost;
+import static com.muhu.SocialMediaApi.mapper.PostMapper.postToPostDto;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/post")
@@ -18,8 +24,8 @@ public class PostController {
     private final PostService postService;
 
     @PostMapping("/save")
-    public ResponseEntity<?> savePost(@RequestBody Post post){
-        Post savePost = postService.savePost(post);
+    public ResponseEntity<?> savePost(@RequestBody PostRegistrationDto postRegistrationDto){
+        Post savePost = postService.savePost(postRegistrationDtoToPost(postRegistrationDto));
         if (null == savePost){
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -54,7 +60,7 @@ public class PostController {
     @PutMapping("/update/{postId}")
     public ResponseEntity<?> updatePostById(@PathVariable Long postId,
                                             @RequestBody Post post){
-        Post updatedPost = postService.updatePostById(postId, post);
+        PostDto updatedPost = postToPostDto(postService.updatePostById(postId, post));
         if (null == updatedPost){
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -74,7 +80,7 @@ public class PostController {
 
     @GetMapping("/{postId}")
     public ResponseEntity<?> getPostById(@PathVariable Long postId){
-        Post foundedPost = postService.getPostById(postId);
+        PostDto foundedPost = postToPostDto(postService.getPostById(postId));
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .header(HttpHeaders.LOCATION,"/api/post/"+postId)
@@ -87,7 +93,10 @@ public class PostController {
 
     @GetMapping("/all")
     public ResponseEntity<?> getAllPost(){
-        List<Post> allPost = postService.getAllPost();
+        List<PostDto> allPost = postService.getAllPost()
+                .stream()
+                .map(PostMapper::postToPostDto)
+                .toList();
 
         HttpStatus httpStatus = allPost.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK;
 
@@ -99,7 +108,10 @@ public class PostController {
 
     @GetMapping("/user-id")
     public ResponseEntity<?> getAllPostByUserId(@RequestParam Long userId){
-        List<Post> allPostByUserId = postService.getAllPostByUserId(userId);
+        List<PostDto> allPostByUserId = postService.getAllPostByUserId(userId)
+                .stream()
+                .map(PostMapper::postToPostDto)
+                .toList();
 
         HttpStatus httpStatus = allPostByUserId.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK;
 
@@ -111,7 +123,10 @@ public class PostController {
 
     @GetMapping("/user-email")
     public ResponseEntity<?> getAllPostByUserEmail(@RequestParam String userEmail){
-        List<Post> allPostByUserEmail = postService.getAllPostByUserEmail(userEmail);
+        List<PostDto> allPostByUserEmail = postService.getAllPostByUserEmail(userEmail)
+                .stream()
+                .map(PostMapper::postToPostDto)
+                .toList();
 
         HttpStatus httpStatus = allPostByUserEmail.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK;
 

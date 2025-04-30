@@ -111,7 +111,7 @@ public class UserController {
 
     @GetMapping("/{userId}")
     public ResponseEntity<?> getUserById(@PathVariable Long userId){
-        User foundedUser = userService.getUserById(userId);
+        UserDto foundedUser = userToUserDto(userService.getUserById(userId));
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .header(HttpHeaders.LOCATION,"/api/user/"+userId)

@@ -9,7 +9,7 @@ public interface CommentService {
     Boolean deleteCommentById(Long commentId);
     Boolean deleteCommentByPostId(Long commentId);
     Boolean deleteCommentByUserEmail(String userEmail);
-    Comment updateComment(Long postId,Comment comment);
+    Comment updateComment(Long commentId,Comment comment);
     List<Comment> getAllComment();
     Comment getCommentById(Long commentId);
     List<Comment> getAllCommentByUserId(Long userId);

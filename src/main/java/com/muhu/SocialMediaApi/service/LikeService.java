@@ -1,12 +1,11 @@
 package com.muhu.SocialMediaApi.service;
 
 import com.muhu.SocialMediaApi.entity.Like;
-import org.apache.coyote.BadRequestException;
 
 import java.util.List;
 
 public interface LikeService {
-    Like saveLike(Like like) throws BadRequestException;
+    Like saveLike(Like like);
     Boolean deleteLikeById(Long likeId);
     Like updateLike(Long likeId,Like like);
     Like getLikeByID(Long likeId);

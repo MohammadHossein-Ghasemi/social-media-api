@@ -1,7 +1,6 @@
 package com.muhu.SocialMediaApi.model;
 
 import com.muhu.SocialMediaApi.entity.Comment;
-import com.muhu.SocialMediaApi.entity.Like;
 import lombok.*;
 import org.springframework.stereotype.Component;
 
@@ -19,5 +18,5 @@ public class PostDto {
     private String imageUrl;
     private UserSummaryDto user;
     private Set<Comment> comments;
-    private Set<Like> likes;
+    private Set<Long> likeId;
 }

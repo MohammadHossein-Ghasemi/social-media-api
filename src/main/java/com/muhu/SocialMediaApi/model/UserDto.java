@@ -22,7 +22,7 @@ public class UserDto {
     private Set<PostDto> posts;
     private Set<UserSummaryDto> followers;
     private Set<UserSummaryDto> following;
-    private Set<Like> likes;
+    private Set<Long> likeId;
     private Set<NotificationDto> notifications;
     private Set<Comment> comments;
 }

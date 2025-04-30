@@ -1,6 +1,7 @@
 package com.muhu.SocialMediaApi.service;
 
 import com.muhu.SocialMediaApi.entity.Notification;
+import com.muhu.SocialMediaApi.entity.User;
 import com.muhu.SocialMediaApi.exception.ResourceNotFoundException;
 import com.muhu.SocialMediaApi.repository.NotificationRepository;
 import com.muhu.SocialMediaApi.repository.UserRepository;
@@ -20,9 +21,11 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public Notification saveNotif(Notification notification){
-        if(null == validation.isUserValid(notification.getUser())){
+        User userValid = validation.isUserValid(notification.getUser());
+        if(null == userValid){
             return null;
         }
+        notification.setUser(userValid);
         return notificationRepository.save(notification);
     }
 

@@ -1,6 +1,8 @@
 package com.muhu.SocialMediaApi.service;
 
 import com.muhu.SocialMediaApi.entity.Like;
+import com.muhu.SocialMediaApi.entity.Post;
+import com.muhu.SocialMediaApi.entity.User;
 import com.muhu.SocialMediaApi.exception.ResourceNotFoundException;
 import com.muhu.SocialMediaApi.repository.LikeRepository;
 import com.muhu.SocialMediaApi.repository.PostRepository;
@@ -21,10 +23,14 @@ public class LikeServiceImpl implements LikeService {
     private final Validation validation;
     @Override
     public Like saveLike(Like like){
-
-        if (null!=validation.isUserValid(like.getUser()) || null!=validation.isPostValid(like.getPost())){
+        User userValid = validation.isUserValid(like.getUser());
+        Post postValid = validation.isPostValid(like.getPost());
+        if (null == userValid || null == postValid){
             return null;
         }
+
+        like.setUser(userValid);
+        like.setPost(postValid);
 
         return likeRepository.save(like);
     }

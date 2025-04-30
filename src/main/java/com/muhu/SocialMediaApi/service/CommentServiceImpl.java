@@ -1,6 +1,8 @@
 package com.muhu.SocialMediaApi.service;
 
 import com.muhu.SocialMediaApi.entity.Comment;
+import com.muhu.SocialMediaApi.entity.Post;
+import com.muhu.SocialMediaApi.entity.User;
 import com.muhu.SocialMediaApi.exception.ResourceNotFoundException;
 import com.muhu.SocialMediaApi.repository.CommentRepository;
 import com.muhu.SocialMediaApi.repository.PostRepository;
@@ -22,9 +24,14 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public Comment saveComment(Comment comment) {
-        if (null != validation.isUserValid(comment.getUser()) || null!=validation.isPostValid(comment.getPost())) {
+        User userValid = validation.isUserValid(comment.getUser());
+        Post postValid = validation.isPostValid(comment.getPost());
+        if (null == userValid || null == postValid ) {
             return null;
         }
+
+        comment.setUser(userValid);
+        comment.setPost(postValid);
         return commentRepository.save(comment);
     }
 

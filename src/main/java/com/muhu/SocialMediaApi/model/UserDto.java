@@ -1,6 +1,5 @@
 package com.muhu.SocialMediaApi.model;
 
-import com.muhu.SocialMediaApi.entity.*;
 import lombok.*;
 import org.springframework.stereotype.Component;
 
@@ -24,5 +23,5 @@ public class UserDto {
     private Set<UserSummaryDto> following;
     private Set<Long> likeId;
     private Set<NotificationDto> notifications;
-    private Set<Comment> comments;
+    private Set<Long> commentId;
 }

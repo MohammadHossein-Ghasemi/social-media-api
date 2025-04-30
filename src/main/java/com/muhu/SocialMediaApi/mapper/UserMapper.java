@@ -1,5 +1,6 @@
 package com.muhu.SocialMediaApi.mapper;
 
+import com.muhu.SocialMediaApi.entity.Comment;
 import com.muhu.SocialMediaApi.entity.Like;
 import com.muhu.SocialMediaApi.entity.User;
 import com.muhu.SocialMediaApi.model.*;
@@ -26,6 +27,15 @@ public class UserMapper {
         Set<PostDto> postDtos;
         Set<NotificationDto> notificationDtos;
         Set<Long> likeId;
+        Set<Long> commentId;
+
+        if (null != user.getComments()){
+            commentId=user.getComments().stream()
+                    .map(Comment::getId)
+                    .collect(Collectors.toSet());
+        }else {
+            commentId = Set.of();
+        }
 
         if (null != user.getLikes()){
             likeId= user.getLikes().stream()
@@ -80,7 +90,7 @@ public class UserMapper {
                 .following(following)
                 .likeId(likeId)
                 .notifications(notificationDtos)
-                .comments(user.getComments())
+                .commentId(commentId)
                 .build();
     }
 

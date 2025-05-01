@@ -7,6 +7,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
@@ -24,6 +27,8 @@ class LikeRepositoryTest {
     PostRepository postRepository;
     @Autowired
     UserRepository userRepository;
+
+    private final Pageable pageable = PageRequest.of(0,5);
 
     @Test
     void findAll() {
@@ -115,10 +120,10 @@ class LikeRepositoryTest {
         assertThat(savedLike).isNotNull();
         assertThat(savedLike.getId()).isNotNull();
 
-        List<Like> likeList = repositoryUnderTest.findByUserId(savedUser.getId());
+        Page<Like> likeList = repositoryUnderTest.findByUserId(savedUser.getId(),pageable);
 
         assertThat(likeList).isNotNull();
-        assertThat(likeList.size()).isEqualTo(1);
+        assertThat(likeList.getTotalElements()).isEqualTo(1);
     }
 
     @Test
@@ -147,10 +152,10 @@ class LikeRepositoryTest {
         assertThat(savedLike).isNotNull();
         assertThat(savedLike.getId()).isNotNull();
 
-        List<Like> likeList = repositoryUnderTest.findByUserEmail(savedUser.getEmail());
+        Page<Like> likeList = repositoryUnderTest.findByUserEmail(savedUser.getEmail(),pageable);
 
         assertThat(likeList).isNotNull();
-        assertThat(likeList.size()).isEqualTo(1);
+        assertThat(likeList.getTotalElements()).isEqualTo(1);
     }
 
     @Test
@@ -179,9 +184,9 @@ class LikeRepositoryTest {
         assertThat(savedLike).isNotNull();
         assertThat(savedLike.getId()).isNotNull();
 
-        List<Like> likeList = repositoryUnderTest.findByPostId(savedPost.getId());
+        Page<Like> likeList = repositoryUnderTest.findByPostId(savedPost.getId(),pageable);
 
         assertThat(likeList).isNotNull();
-        assertThat(likeList.size()).isEqualTo(1);
+        assertThat(likeList.getTotalElements()).isEqualTo(1);
     }
 }

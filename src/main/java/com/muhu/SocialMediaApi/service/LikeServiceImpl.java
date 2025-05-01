@@ -4,15 +4,21 @@ import com.muhu.SocialMediaApi.entity.Like;
 import com.muhu.SocialMediaApi.entity.Post;
 import com.muhu.SocialMediaApi.entity.User;
 import com.muhu.SocialMediaApi.exception.ResourceNotFoundException;
+import com.muhu.SocialMediaApi.mapper.LikeMapper;
+import com.muhu.SocialMediaApi.model.LikeDto;
+import com.muhu.SocialMediaApi.model.LikeRegistrationDto;
 import com.muhu.SocialMediaApi.repository.LikeRepository;
 import com.muhu.SocialMediaApi.repository.PostRepository;
 import com.muhu.SocialMediaApi.repository.UserRepository;
 import com.muhu.SocialMediaApi.service.validation.Validation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
+
+import static com.muhu.SocialMediaApi.mapper.LikeMapper.likeRegistrationDtoToLike;
+import static com.muhu.SocialMediaApi.mapper.LikeMapper.likeToLikeDto;
 
 @Service
 @RequiredArgsConstructor
@@ -22,17 +28,17 @@ public class LikeServiceImpl implements LikeService {
     private final PostRepository postRepository;
     private final Validation validation;
     @Override
-    public Like saveLike(Like like){
-        User userValid = validation.isUserValid(like.getUser());
-        Post postValid = validation.isPostValid(like.getPost());
+    public LikeDto saveLike(LikeRegistrationDto likeRegistrationDto){
+        User userValid = validation.isUserValid(likeRegistrationDto.getUser());
+        Post postValid = validation.isPostValid(likeRegistrationDto.getPost());
         if (null == userValid || null == postValid){
             return null;
         }
 
-        like.setUser(userValid);
-        like.setPost(postValid);
+        likeRegistrationDto.setUser(userValid);
+        likeRegistrationDto.setPost(postValid);
 
-        return likeRepository.save(like);
+        return likeToLikeDto(likeRepository.save(likeRegistrationDtoToLike(likeRegistrationDto)));
     }
 
     @Override
@@ -45,7 +51,7 @@ public class LikeServiceImpl implements LikeService {
     }
 
     @Override
-    public Like updateLike(Long likeId, Like like) {
+    public LikeDto updateLike(Long likeId, Like like) {
         AtomicReference<Like> updatedLike = new AtomicReference<>();
 
         likeRepository.findById(likeId).ifPresentOrElse(
@@ -55,42 +61,46 @@ public class LikeServiceImpl implements LikeService {
                 },
                 ()->{throw new ResourceNotFoundException("There is no like with ID : "+likeId);}
         );
-        return updatedLike.get();
+        return likeToLikeDto(updatedLike.get());
     }
 
     @Override
-    public Like getLikeByID(Long likeId) {
-        return likeRepository.findById(likeId)
-                .orElseThrow(()-> new ResourceNotFoundException("There is no like with ID : "+likeId));
+    public LikeDto getLikeByID(Long likeId) {
+        return likeToLikeDto(likeRepository.findById(likeId)
+                .orElseThrow(()-> new ResourceNotFoundException("There is no like with ID : "+likeId)));
     }
 
     @Override
-    public List<Like> getAllLike() {
-        return likeRepository.findAll();
+    public Page<LikeDto> getAllLike(Integer page , Integer size) {
+        return likeRepository.findAll(validation.pageAndSizeValidation(page,size))
+                .map(LikeMapper::likeToLikeDto);
     }
 
     @Override
-    public List<Like> getAllLikeByUserId(Long userId) {
+    public Page<LikeDto> getAllLikeByUserId(Long userId , Integer page , Integer size) {
         if (!userRepository.existsById(userId)){
             throw new ResourceNotFoundException("There is no user with ID : "+userId);
         }
-        return likeRepository.findByUserId(userId);
+        return likeRepository.findByUserId(userId,validation.pageAndSizeValidation(page,size))
+                .map(LikeMapper::likeToLikeDto);
     }
 
     @Override
-    public List<Like> getAllLikeByUserEmail(String userEmail) {
+    public Page<LikeDto> getAllLikeByUserEmail(String userEmail , Integer page , Integer size) {
         if (!userRepository.existsByEmail(userEmail)){
             throw new ResourceNotFoundException("There is no user with Email : "+userEmail);
         }
-        return likeRepository.findByUserEmail(userEmail);
+        return likeRepository.findByUserEmail(userEmail,validation.pageAndSizeValidation(page, size))
+                .map(LikeMapper::likeToLikeDto);
     }
 
     @Override
-    public List<Like> getAllLikeByPostId(Long postId) {
+    public Page<LikeDto> getAllLikeByPostId(Long postId , Integer page , Integer size) {
         if (!postRepository.existsById(postId)){
             throw new ResourceNotFoundException("There is no post with ID : "+postId);
         }
-        return likeRepository.findByPostId(postId);
+        return likeRepository.findByPostId(postId,validation.pageAndSizeValidation(page, size))
+                .map(LikeMapper::likeToLikeDto);
     }
 
     private void updateNonNullFields(Like updatedLike , Like inputLike){

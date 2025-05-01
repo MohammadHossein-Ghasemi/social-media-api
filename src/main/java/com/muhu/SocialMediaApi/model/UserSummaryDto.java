@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 @Builder
 @Component
 public class UserSummaryDto {
-    private Long userId;
+    private Long id;
     private String username;
     private String email;
     private String profilePictureUrl;

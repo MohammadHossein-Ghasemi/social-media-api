@@ -3,17 +3,21 @@ package com.muhu.SocialMediaApi.service;
 import com.muhu.SocialMediaApi.entity.User;
 import com.muhu.SocialMediaApi.exception.DuplicateException;
 import com.muhu.SocialMediaApi.exception.ResourceNotFoundException;
+import com.muhu.SocialMediaApi.mapper.UserMapper;
+import com.muhu.SocialMediaApi.model.UserDto;
 import com.muhu.SocialMediaApi.repository.UserRepository;
+import com.muhu.SocialMediaApi.service.validation.Validation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
+    private final Validation validation;
 
     @Override
     public User saveUser(User user) {
@@ -57,8 +61,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> getAllUser() {
-        return userRepository.findAll();
+    public Page<UserDto> getAllUser(Integer page , Integer size) {
+        return userRepository.findAll(validation.pageAndSizeValidation(page,size))
+                .map(UserMapper::userToUserDto);
     }
 
     @Override
@@ -74,35 +79,39 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> getAllUserFollowersById(Long userId) {
+    public Page<UserDto> getAllUserFollowersById(Long userId,Integer page , Integer size) {
         if (!userRepository.existsById(userId)){
             throw new ResourceNotFoundException("There is no user with ID : "+userId);
         }
-        return userRepository.findAllFollowersById(userId);
+        return userRepository.findAllFollowersById(userId,validation.pageAndSizeValidation(page,size))
+                .map(UserMapper::userToUserDto);
     }
 
     @Override
-    public List<User> getAllUserFollowingById(Long userId) {
+    public Page<UserDto> getAllUserFollowingById(Long userId,Integer page , Integer size) {
         if (!userRepository.existsById(userId)){
             throw new ResourceNotFoundException("There is no user with ID : "+userId);
         }
-        return userRepository.findAllFollowingById(userId);
+        return userRepository.findAllFollowingById(userId,validation.pageAndSizeValidation(page,size))
+                .map(UserMapper::userToUserDto);
     }
 
     @Override
-    public List<User> getAllUserFollowersByEmail(String email) {
+    public Page<UserDto> getAllUserFollowersByEmail(String email,Integer page , Integer size) {
         if (!userRepository.existsByEmail(email)){
             throw new ResourceNotFoundException("There is no user with Email : " + email);
         }
-        return userRepository.findAllFollowersByEmail(email);
+        return userRepository.findAllFollowersByEmail(email,validation.pageAndSizeValidation(page,size))
+                .map(UserMapper::userToUserDto);
     }
 
     @Override
-    public List<User> getAllUserFollowingByEmail(String email) {
+    public Page<UserDto> getAllUserFollowingByEmail(String email,Integer page , Integer size) {
         if (!userRepository.existsByEmail(email)){
             throw new ResourceNotFoundException("There is no user with Email : " + email);
         }
-        return userRepository.findAllFollowingByEmail(email);
+        return userRepository.findAllFollowingByEmail(email,validation.pageAndSizeValidation(page,size))
+                .map(UserMapper::userToUserDto);
     }
 
     private void updateNonNullFields(User updatedUser , User inputUser){

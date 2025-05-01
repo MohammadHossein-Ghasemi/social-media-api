@@ -1,20 +1,20 @@
 package com.muhu.SocialMediaApi.controller;
 
 import com.muhu.SocialMediaApi.entity.User;
-import com.muhu.SocialMediaApi.mapper.UserMapper;
 import com.muhu.SocialMediaApi.model.UserDto;
 import com.muhu.SocialMediaApi.model.UserRegistrationDto;
 import com.muhu.SocialMediaApi.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Map;
 
-import static com.muhu.SocialMediaApi.mapper.UserMapper.*;
+import static com.muhu.SocialMediaApi.mapper.UserMapper.userRegistrationDtoToUser;
+import static com.muhu.SocialMediaApi.mapper.UserMapper.userToUserDto;
 
 @RestController
 @RequiredArgsConstructor
@@ -93,10 +93,9 @@ public class UserController {
     }
 
     @GetMapping("/all")
-    private ResponseEntity<?> getAllUser(){
-        List<UserDto> allUser = userService.getAllUser().stream()
-                .map(UserMapper::userToUserDto)
-                .toList();
+    private ResponseEntity<?> getAllUser(@RequestParam(required = false) Integer page ,
+                                         @RequestParam(required = false) Integer size){
+        Page<UserDto> allUser = userService.getAllUser(page,size);
         if (allUser.isEmpty()){
             return ResponseEntity
                     .status(HttpStatus.NO_CONTENT)
@@ -136,11 +135,10 @@ public class UserController {
     }
 
     @GetMapping("/followers/{userId}")
-    public ResponseEntity<?> getAllUserFollowersById(@PathVariable Long userId){
-        List<UserDto> allUserFollowersById = userService.getAllUserFollowersById(userId)
-                .stream()
-                .map(UserMapper::userToUserDto)
-                .toList();
+    public ResponseEntity<?> getAllUserFollowersById(@PathVariable Long userId,
+                                                     @RequestParam(required = false) Integer page ,
+                                                     @RequestParam(required = false) Integer size){
+        Page<UserDto> allUserFollowersById = userService.getAllUserFollowersById(userId,page,size);
         HttpStatus status = allUserFollowersById.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK;
         return ResponseEntity
                 .status(status)
@@ -149,11 +147,10 @@ public class UserController {
     }
 
     @GetMapping("/following/{userId}")
-    public ResponseEntity<?> getAllUserFollowingById(@PathVariable Long userId){
-        List<UserDto> allUserFollowingById = userService.getAllUserFollowingById(userId)
-                .stream()
-                .map(UserMapper::userToUserDto)
-                .toList();
+    public ResponseEntity<?> getAllUserFollowingById(@PathVariable Long userId,
+                                                     @RequestParam(required = false) Integer page ,
+                                                     @RequestParam(required = false) Integer size){
+        Page<UserDto> allUserFollowingById = userService.getAllUserFollowingById(userId,page,size);
         HttpStatus status = allUserFollowingById.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK;
         return ResponseEntity
                 .status(status)
@@ -162,11 +159,10 @@ public class UserController {
     }
 
     @GetMapping("/followers")
-    public ResponseEntity<?> getAllUserFollowersByEmail(@RequestParam String userEmail){
-        List<UserDto> allUserFollowersById = userService.getAllUserFollowersByEmail(userEmail)
-                .stream()
-                .map(UserMapper::userToUserDto)
-                .toList();
+    public ResponseEntity<?> getAllUserFollowersByEmail(@RequestParam String userEmail,
+                                                        @RequestParam(required = false) Integer page ,
+                                                        @RequestParam(required = false) Integer size){
+        Page<UserDto> allUserFollowersById = userService.getAllUserFollowersByEmail(userEmail,page,size);
         HttpStatus status = allUserFollowersById.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK;
         return ResponseEntity
                 .status(status)
@@ -175,11 +171,10 @@ public class UserController {
     }
 
     @GetMapping("/following")
-    public ResponseEntity<?> getAllUserFollowingByEmail(@RequestParam String userEmail){
-        List<UserDto> allUserFollowingById = userService.getAllUserFollowingByEmail(userEmail)
-                .stream()
-                .map(UserMapper::userToUserDto)
-                .toList();
+    public ResponseEntity<?> getAllUserFollowingByEmail(@RequestParam String userEmail,
+                                                        @RequestParam(required = false) Integer page ,
+                                                        @RequestParam(required = false) Integer size){
+        Page<UserDto> allUserFollowingById = userService.getAllUserFollowingByEmail(userEmail,page,size);
         HttpStatus status = allUserFollowingById.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK;
         return ResponseEntity
                 .status(status)

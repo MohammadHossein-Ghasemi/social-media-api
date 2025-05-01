@@ -79,7 +79,7 @@ public class UserMapper {
         }
 
         return UserDto.builder()
-                .userId(user.getId())
+                .id(user.getId())
                 .username(user.getUsername())
                 .email(user.getEmail())
                 .password(user.getPassword())
@@ -96,7 +96,7 @@ public class UserMapper {
 
     public static UserSummaryDto userToUserSummeryDto(User user){
         return UserSummaryDto.builder()
-                .userId(user.getId())
+                .id(user.getId())
                 .username(user.getUsername())
                 .email(user.getEmail())
                 .profilePictureUrl(user.getProfilePictureUrl())

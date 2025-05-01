@@ -4,12 +4,16 @@ import com.muhu.SocialMediaApi.entity.User;
 import com.muhu.SocialMediaApi.exception.DuplicateException;
 import com.muhu.SocialMediaApi.exception.ResourceNotFoundException;
 import com.muhu.SocialMediaApi.repository.UserRepository;
+import com.muhu.SocialMediaApi.service.validation.Validation;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -25,11 +29,16 @@ class UserServiceImplTest {
 
     @Mock
     private UserRepository userRepository;
+    @Mock
+    private Validation validation;
+
+    private final int pageSize=5;
+    private final int pageNumber=0;
 
     @BeforeEach
     void setUp(){
        autoCloseable = MockitoAnnotations.openMocks(this);
-       serviceUnderTest = new UserServiceImpl(userRepository);
+       serviceUnderTest = new UserServiceImpl(userRepository,validation);
     }
 
     @AfterEach
@@ -167,8 +176,10 @@ class UserServiceImplTest {
 
     @Test
     void getAllUser() {
-        serviceUnderTest.getAllUser();
-        verify(userRepository).findAll();
+        Page<User> userPage = new PageImpl<>(List.of());
+        when(userRepository.findAll(validation.pageAndSizeValidation(pageNumber,pageSize))).thenReturn(userPage);
+        serviceUnderTest.getAllUser(pageNumber,pageSize);
+        verify(userRepository).findAll(validation.pageAndSizeValidation(pageNumber,pageSize));
     }
 
     @Test
@@ -243,11 +254,15 @@ class UserServiceImplTest {
     void getAllUserFollowersById() {
         Long userId=14L;
 
+        Page<User> userPage = new PageImpl<>(List.of());
+
         when(userRepository.existsById(userId)).thenReturn(true);
+        when(userRepository.findAllFollowersById(userId,validation.pageAndSizeValidation(pageNumber,pageSize)))
+                .thenReturn(userPage);
 
-        serviceUnderTest.getAllUserFollowersById(userId);
+        serviceUnderTest.getAllUserFollowersById(userId,pageNumber,pageSize);
 
-        verify(userRepository).findAllFollowersById(userId);
+        verify(userRepository).findAllFollowersById(userId,validation.pageAndSizeValidation(pageNumber,pageSize));
     }
 
     @Test
@@ -256,7 +271,7 @@ class UserServiceImplTest {
 
         when(userRepository.existsById(userId)).thenReturn(false);
 
-        assertThatThrownBy(()->serviceUnderTest.getAllUserFollowersById(userId))
+        assertThatThrownBy(()->serviceUnderTest.getAllUserFollowersById(userId,pageNumber,pageSize))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("There is no user with ID : "+userId);
     }
@@ -265,11 +280,15 @@ class UserServiceImplTest {
     void getAllUserFollowingById() {
         Long userId=14L;
 
+        Page<User> userPage = new PageImpl<>(List.of());
+
         when(userRepository.existsById(userId)).thenReturn(true);
+        when(userRepository.findAllFollowingById(userId,validation.pageAndSizeValidation(pageNumber,pageSize)))
+                .thenReturn(userPage);
 
-        serviceUnderTest.getAllUserFollowingById(userId);
+        serviceUnderTest.getAllUserFollowingById(userId,pageNumber,pageSize);
 
-        verify(userRepository).findAllFollowingById(userId);
+        verify(userRepository).findAllFollowingById(userId,validation.pageAndSizeValidation(pageNumber,pageSize));
     }
 
     @Test
@@ -278,7 +297,7 @@ class UserServiceImplTest {
 
         when(userRepository.existsById(userId)).thenReturn(false);
 
-        assertThatThrownBy(()->serviceUnderTest.getAllUserFollowingById(userId))
+        assertThatThrownBy(()->serviceUnderTest.getAllUserFollowingById(userId,pageNumber,pageSize))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("There is no user with ID : "+userId);
     }
@@ -287,11 +306,15 @@ class UserServiceImplTest {
     void getAllUserFollowersByEmail() {
         String userEmail="test@example.com";
 
+        Page<User> userPage = new PageImpl<>(List.of());
+
         when(userRepository.existsByEmail(userEmail)).thenReturn(true);
+        when(userRepository.findAllFollowersByEmail(userEmail,validation.pageAndSizeValidation(pageNumber,pageSize)))
+                .thenReturn(userPage);
 
-        serviceUnderTest.getAllUserFollowersByEmail(userEmail);
+        serviceUnderTest.getAllUserFollowersByEmail(userEmail,pageNumber,pageSize);
 
-        verify(userRepository).findAllFollowersByEmail(userEmail);
+        verify(userRepository).findAllFollowersByEmail(userEmail,validation.pageAndSizeValidation(pageNumber,pageSize));
     }
 
     @Test
@@ -300,7 +323,7 @@ class UserServiceImplTest {
 
         when(userRepository.existsByEmail(userEmail)).thenReturn(false);
 
-        assertThatThrownBy(()->serviceUnderTest.getAllUserFollowersByEmail(userEmail))
+        assertThatThrownBy(()->serviceUnderTest.getAllUserFollowersByEmail(userEmail,pageNumber,pageSize))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("There is no user with Email : "+userEmail);
     }
@@ -309,11 +332,15 @@ class UserServiceImplTest {
     void getAllUserFollowingByEmail() {
         String userEmail="test@example.com";
 
+        Page<User> userPage = new PageImpl<>(List.of());
+
         when(userRepository.existsByEmail(userEmail)).thenReturn(true);
+        when(userRepository.findAllFollowingByEmail(userEmail,validation.pageAndSizeValidation(pageNumber,pageSize)))
+                .thenReturn(userPage);
 
-        serviceUnderTest.getAllUserFollowingByEmail(userEmail);
+        serviceUnderTest.getAllUserFollowingByEmail(userEmail,pageNumber,pageSize);
 
-        verify(userRepository).findAllFollowingByEmail(userEmail);
+        verify(userRepository).findAllFollowingByEmail(userEmail,validation.pageAndSizeValidation(pageNumber,pageSize));
     }
 
     @Test
@@ -322,7 +349,7 @@ class UserServiceImplTest {
 
         when(userRepository.existsByEmail(userEmail)).thenReturn(false);
 
-        assertThatThrownBy(()->serviceUnderTest.getAllUserFollowingByEmail(userEmail))
+        assertThatThrownBy(()->serviceUnderTest.getAllUserFollowingByEmail(userEmail,pageNumber,pageSize))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("There is no user with Email : "+userEmail);
     }

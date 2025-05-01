@@ -5,6 +5,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 
 import java.util.List;
 import java.util.Optional;
@@ -18,6 +20,8 @@ class UserRepositoryTest {
 
     @Autowired
     UserRepository repositoryUnderTest;
+
+    PageRequest pageRequest = PageRequest.of(0,5);
 
     @Test
     void findAll() {
@@ -117,10 +121,10 @@ class UserRepositoryTest {
         assertThat(savedUser).isNotNull();
         assertThat(savedUser.getId()).isNotNull();
 
-        List<User> userFollowers = repositoryUnderTest.findAllFollowersById(savedUser.getId());
+        Page<User> userFollowers = repositoryUnderTest.findAllFollowersById(savedUser.getId(),pageRequest);
 
         assertThat(userFollowers).isNotNull();
-        assertThat(userFollowers.size()).isEqualTo(1);
+        assertThat(userFollowers.getTotalElements()).isEqualTo(1);
     }
 
     @Test
@@ -148,10 +152,10 @@ class UserRepositoryTest {
         assertThat(savedUser).isNotNull();
         assertThat(savedUser.getId()).isNotNull();
 
-        List<User> userFollowing = repositoryUnderTest.findAllFollowingById(savedUser.getId());
+        Page<User> userFollowing = repositoryUnderTest.findAllFollowingById(savedUser.getId(),pageRequest);
 
         assertThat(userFollowing).isNotNull();
-        assertThat(userFollowing.size()).isEqualTo(1);
+        assertThat(userFollowing.getTotalElements()).isEqualTo(1);
     }
 
     @Test
@@ -179,10 +183,10 @@ class UserRepositoryTest {
         assertThat(savedUser).isNotNull();
         assertThat(savedUser.getId()).isNotNull();
 
-        List<User> userFollowers = repositoryUnderTest.findAllFollowersByEmail(savedUser.getEmail());
+        Page<User> userFollowers = repositoryUnderTest.findAllFollowersByEmail(savedUser.getEmail(),pageRequest);
 
         assertThat(userFollowers).isNotNull();
-        assertThat(userFollowers.size()).isEqualTo(1);
+        assertThat(userFollowers.getTotalElements()).isEqualTo(1);
     }
 
     @Test
@@ -210,10 +214,10 @@ class UserRepositoryTest {
         assertThat(savedUser).isNotNull();
         assertThat(savedUser.getId()).isNotNull();
 
-        List<User> userFollowing = repositoryUnderTest.findAllFollowingByEmail(savedUser.getEmail());
+        Page<User> userFollowing = repositoryUnderTest.findAllFollowingByEmail(savedUser.getEmail(),pageRequest);
 
         assertThat(userFollowing).isNotNull();
-        assertThat(userFollowing.size()).isEqualTo(1);
+        assertThat(userFollowing.getTotalElements()).isEqualTo(1);
     }
 
     @Test

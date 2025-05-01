@@ -12,7 +12,7 @@ import java.util.Set;
 @Builder
 @Component
 public class UserDto {
-    private Long userId;
+    private Long id;
     private String username;
     private String email;
     private String password;

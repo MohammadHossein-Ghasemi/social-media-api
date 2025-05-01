@@ -7,6 +7,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
@@ -24,6 +27,8 @@ class CommentRepositoryTest {
     PostRepository postRepository;
     @Autowired
     UserRepository userRepository;
+
+    private final Pageable pageable = PageRequest.of(0,5);
 
     @Test
     void findAll() {
@@ -117,10 +122,10 @@ class CommentRepositoryTest {
         assertThat(savedComment).isNotNull();
         assertThat(savedComment.getId()).isNotNull();
 
-        List<Comment> commentList = repositoryUnderTest.findAllByUserId(savedUser.getId());
+        Page<Comment> commentList = repositoryUnderTest.findAllByUserId(savedUser.getId(),pageable);
 
         assertThat(commentList).isNotNull();
-        assertThat(commentList.size()).isEqualTo(1);
+        assertThat(commentList.getTotalElements()).isEqualTo(1);
     }
 
     @Test
@@ -150,10 +155,10 @@ class CommentRepositoryTest {
         assertThat(savedComment).isNotNull();
         assertThat(savedComment.getId()).isNotNull();
 
-        List<Comment> commentList = repositoryUnderTest.findAllByUserEmail(savedUser.getEmail());
+        Page<Comment> commentList = repositoryUnderTest.findAllByUserEmail(savedUser.getEmail(),pageable);
 
         assertThat(commentList).isNotNull();
-        assertThat(commentList.size()).isEqualTo(1);
+        assertThat(commentList.getTotalElements()).isEqualTo(1);
     }
 
     @Test
@@ -183,10 +188,10 @@ class CommentRepositoryTest {
         assertThat(savedComment).isNotNull();
         assertThat(savedComment.getId()).isNotNull();
 
-        List<Comment> commentList = repositoryUnderTest.findAllByPostId(savedPost.getId());
+        Page<Comment> commentList = repositoryUnderTest.findAllByPostId(savedPost.getId(),pageable);
 
         assertThat(commentList).isNotNull();
-        assertThat(commentList.size()).isEqualTo(1);
+        assertThat(commentList.getTotalElements()).isEqualTo(1);
     }
 
     @Test

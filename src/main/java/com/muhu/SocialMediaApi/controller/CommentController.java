@@ -1,21 +1,17 @@
 package com.muhu.SocialMediaApi.controller;
 
 import com.muhu.SocialMediaApi.entity.Comment;
-import com.muhu.SocialMediaApi.mapper.CommentMapper;
 import com.muhu.SocialMediaApi.model.CommentDto;
 import com.muhu.SocialMediaApi.model.CommentRegistrationDto;
 import com.muhu.SocialMediaApi.service.CommentService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Map;
-
-import static com.muhu.SocialMediaApi.mapper.CommentMapper.commentRegistrationDtoToComment;
-import static com.muhu.SocialMediaApi.mapper.CommentMapper.commentToCommentDto;
 
 @RestController
 @RequiredArgsConstructor
@@ -25,8 +21,7 @@ public class CommentController {
 
     @PostMapping("/save")
     public ResponseEntity<?> saveComment(@RequestBody CommentRegistrationDto commentRegistrationDto){
-        CommentDto savedComment = commentToCommentDto(
-                commentService.saveComment(commentRegistrationDtoToComment(commentRegistrationDto)));
+        CommentDto savedComment = commentService.saveComment(commentRegistrationDto);
         if (null == savedComment){
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -92,7 +87,7 @@ public class CommentController {
     public ResponseEntity<?> updateComment(@PathVariable Long commentId,
                                         @RequestBody Comment comment){
 
-        CommentDto updateComment = commentToCommentDto(commentService.updateComment(commentId,comment));
+        CommentDto updateComment = commentService.updateComment(commentId,comment);
         if (null == updateComment){
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -112,10 +107,9 @@ public class CommentController {
     }
 
     @GetMapping("/all")
-    public ResponseEntity<?> getAllComment(){
-        List<CommentDto> allComment = commentService.getAllComment().stream()
-                .map(CommentMapper::commentToCommentDto)
-                .toList();
+    public ResponseEntity<?> getAllComment(@RequestParam(required = false) Integer page ,
+                                           @RequestParam(required = false) Integer size){
+        Page<CommentDto> allComment = commentService.getAllComment(page, size);
         HttpStatus httpStatus = allComment.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK;
 
         return ResponseEntity
@@ -126,7 +120,7 @@ public class CommentController {
 
     @GetMapping("/{commentId}")
     public ResponseEntity<?> getCommentById(@PathVariable Long commentId){
-        CommentDto foundedComment = commentToCommentDto(commentService.getCommentById(commentId));
+        CommentDto foundedComment = commentService.getCommentById(commentId);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .header(HttpHeaders.LOCATION,"/api/comment/"+commentId)
@@ -138,11 +132,10 @@ public class CommentController {
     }
 
     @GetMapping("/user-id")
-    public ResponseEntity<?> getAllCommentByUserId(@RequestParam Long userId){
-        List<CommentDto> allCommentByUserId = commentService.getAllCommentByUserId(userId)
-                .stream()
-                .map(CommentMapper::commentToCommentDto)
-                .toList();
+    public ResponseEntity<?> getAllCommentByUserId(@RequestParam Long userId,
+                                                   @RequestParam(required = false) Integer page ,
+                                                   @RequestParam(required = false) Integer size){
+        Page<CommentDto> allCommentByUserId = commentService.getAllCommentByUserId(userId,page,size);
 
         HttpStatus httpStatus = allCommentByUserId.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK;
 
@@ -153,11 +146,10 @@ public class CommentController {
     }
 
     @GetMapping("/user-email")
-    public ResponseEntity<?> getAllCommentByUserEmail(@RequestParam String userEmail){
-        List<CommentDto> allCommentByUserEmail = commentService.getAllCommentByUserEmail(userEmail)
-                .stream()
-                .map(CommentMapper::commentToCommentDto)
-                .toList();
+    public ResponseEntity<?> getAllCommentByUserEmail(@RequestParam String userEmail,
+                                                      @RequestParam(required = false) Integer page ,
+                                                      @RequestParam(required = false) Integer size){
+        Page<CommentDto> allCommentByUserEmail = commentService.getAllCommentByUserEmail(userEmail,page,size);
 
         HttpStatus httpStatus = allCommentByUserEmail.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK;
 
@@ -168,11 +160,10 @@ public class CommentController {
     }
 
     @GetMapping("/post-id")
-    public ResponseEntity<?> getAllCommentByPostId(@RequestParam Long postId){
-        List<CommentDto> allCommentByUserId = commentService.getAllCommentByPostId(postId)
-                .stream()
-                .map(CommentMapper::commentToCommentDto)
-                .toList();
+    public ResponseEntity<?> getAllCommentByPostId(@RequestParam Long postId,
+                                                   @RequestParam(required = false) Integer page ,
+                                                   @RequestParam(required = false) Integer size){
+        Page<CommentDto> allCommentByUserId = commentService.getAllCommentByPostId(postId,page,size);
 
         HttpStatus httpStatus = allCommentByUserId.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK;
 

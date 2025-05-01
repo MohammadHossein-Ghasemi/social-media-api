@@ -7,6 +7,8 @@ import com.muhu.SocialMediaApi.repository.PostRepository;
 import com.muhu.SocialMediaApi.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -40,5 +42,15 @@ public class Validation {
 
         return postRepository.findById(post.getId()).orElseThrow(
                 ()-> new ResourceNotFoundException("There is no post with this profile."));
+    }
+
+    public Pageable pageAndSizeValidation(Integer page , Integer size){
+        if (page == null || page<0){
+            page=0;
+        }
+        if (size == null || size<=0){
+            size=5;
+        }
+        return PageRequest.of(page,size);
     }
 }

@@ -3,6 +3,8 @@ package com.muhu.SocialMediaApi.service;
 import com.muhu.SocialMediaApi.entity.Post;
 import com.muhu.SocialMediaApi.entity.User;
 import com.muhu.SocialMediaApi.exception.ResourceNotFoundException;
+import com.muhu.SocialMediaApi.model.PostDto;
+import com.muhu.SocialMediaApi.model.PostRegistrationDto;
 import com.muhu.SocialMediaApi.repository.PostRepository;
 import com.muhu.SocialMediaApi.repository.UserRepository;
 import com.muhu.SocialMediaApi.service.validation.Validation;
@@ -11,6 +13,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 
 import java.util.List;
 import java.util.Optional;
@@ -26,7 +30,7 @@ class PostServiceImplTest {
     private PostServiceImpl serviceUnderTest;
 
     @Mock
-    private Validation userValidation;
+    private Validation validation;
     @Mock
     private PostRepository postRepository;
     @Mock
@@ -34,10 +38,13 @@ class PostServiceImplTest {
 
     private AutoCloseable autoCloseable;
 
+    private final int pageNumber = 0;
+    private final int pageSize = 5;
+
     @BeforeEach
     void setUp(){
        autoCloseable = MockitoAnnotations.openMocks(this);
-       serviceUnderTest = new PostServiceImpl(postRepository,userRepository,userValidation);
+       serviceUnderTest = new PostServiceImpl(postRepository,userRepository,validation);
     }
 
     @AfterEach
@@ -57,15 +64,19 @@ class PostServiceImplTest {
                 .content("Test content!")
                 .user(user)
                 .build();
+        PostRegistrationDto postRegistrationDto = PostRegistrationDto.builder()
+                .content("Test content!")
+                .user(user)
+                .build();
 
-        when(userValidation.isUserValid(post.getUser())).thenReturn(user);
-        when(postRepository.save(post)).thenReturn(post);
+        when(validation.isUserValid(post.getUser())).thenReturn(user);
+        when(postRepository.save(any(Post.class))).thenReturn(post);
 
-        Post result = serviceUnderTest.savePost(post);
+        PostDto result = serviceUnderTest.savePost(postRegistrationDto);
 
         assertThat(result).isNotNull();
 
-        verify(postRepository).save(post);
+        verify(postRepository).save(any(Post.class));
     }
 
     @Test
@@ -80,11 +91,15 @@ class PostServiceImplTest {
                 .content("Test content!")
                 .user(user)
                 .build();
+        PostRegistrationDto postRegistrationDto = PostRegistrationDto.builder()
+                .content("Test content!")
+                .user(user)
+                .build();
 
-        when(userValidation.isUserValid(post.getUser())).thenReturn(null);
+        when(validation.isUserValid(post.getUser())).thenReturn(null);
         when(postRepository.save(post)).thenReturn(post);
 
-        Post result = serviceUnderTest.savePost(post);
+        PostDto result = serviceUnderTest.savePost(postRegistrationDto);
 
         assertThat(result).isNull();
     }
@@ -113,19 +128,29 @@ class PostServiceImplTest {
 
     @Test
     void updatePostById() {
+        User user = User.builder()
+                .id(14L)
+                .username("muhu")
+                .email("muhu@emaple.com")
+                .password("asfbbgfbgnhmj,hgmhng")
+                .build();
         Post existingPost = Post.builder()
                 .id(14L)
                 .content("Test Content!!")
+                .user(user)
                 .build();
         Post updatedPost = Post.builder()
                 .id(14L)
                 .content("New Test Content!!")
+                .user(user)
                 .build();
 
+        when(userRepository.existsById(user.getId())).thenReturn(true);
+        when(userRepository.existsByEmail(user.getEmail())).thenReturn(true);
         when(postRepository.findById(existingPost.getId())).thenReturn(Optional.of(existingPost));
         when(postRepository.save(any(Post.class))).thenReturn(existingPost);
 
-        Post result = serviceUnderTest.updatePostById(existingPost.getId(), updatedPost);
+        PostDto result = serviceUnderTest.updatePostById(existingPost.getId(), updatedPost);
 
         assertThat(result).isNotNull();
         assertThat(result.getContent()).isEqualTo(updatedPost.getContent());
@@ -154,17 +179,24 @@ class PostServiceImplTest {
 
     @Test
     void getPostById() {
+        User user = User.builder()
+                .id(14L)
+                .username("muhu")
+                .email("muhu@emaple.com")
+                .password("asfbbgfbgnhmj,hgmhng")
+                .build();
         Post post = Post.builder()
                 .id(14L)
                 .content("Test Content!!")
+                .user(user)
                 .build();
 
         when(postRepository.findById(post.getId())).thenReturn(Optional.of(post));
 
-        Post result = serviceUnderTest.getPostById(post.getId());
+        PostDto result = serviceUnderTest.getPostById(post.getId());
 
         assertThat(result).isNotNull();
-        assertThat(result).isEqualTo(post);
+        assertThat(result.getId()).isEqualTo(post.getId());
 
         verify(postRepository).findById(post.getId());
     }
@@ -185,21 +217,25 @@ class PostServiceImplTest {
 
     @Test
     void getAllPost() {
-        serviceUnderTest.getAllPost();
-        verify(postRepository).findAll();
+        Page<Post> postPage = new PageImpl<>(List.of());
+        when(postRepository.findAll(validation.pageAndSizeValidation(pageNumber,pageSize))).thenReturn(postPage);
+        serviceUnderTest.getAllPost(pageNumber,pageSize);
+        verify(postRepository).findAll(validation.pageAndSizeValidation(pageNumber,pageSize));
     }
 
     @Test
     void getAllPostByUserId() {
         Long userId = 14L;
+        Page<Post> postPage = new PageImpl<>(List.of());
 
         when(userRepository.existsById(userId)).thenReturn(true);
+        when(postRepository.findByUserId(userId,validation.pageAndSizeValidation(pageNumber,pageSize))).thenReturn(postPage);
 
-        List<Post> result = serviceUnderTest.getAllPostByUserId(userId);
+        Page<PostDto> result = serviceUnderTest.getAllPostByUserId(userId,pageNumber,pageSize);
 
         assertThat(result).isNotNull();
 
-        verify(postRepository).findByUserId(userId);
+        verify(postRepository).findByUserId(userId,validation.pageAndSizeValidation(pageNumber,pageSize));
     }
 
     @Test
@@ -208,7 +244,7 @@ class PostServiceImplTest {
 
         when(userRepository.existsById(userId)).thenReturn(false);
 
-        assertThatThrownBy(()->serviceUnderTest.getAllPostByUserId(userId))
+        assertThatThrownBy(()->serviceUnderTest.getAllPostByUserId(userId,pageNumber,pageSize))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("There is no user with ID : " + userId);
     }
@@ -217,13 +253,16 @@ class PostServiceImplTest {
     void getAllPostByUserEmail() {
         String userEmail = "test@example.com";
 
+        Page<Post> postPage = new PageImpl<>(List.of());
+
+        when(postRepository.findByUserEmail(userEmail,validation.pageAndSizeValidation(pageNumber,pageSize))).thenReturn(postPage);
         when(userRepository.existsByEmail(userEmail)).thenReturn(true);
 
-        List<Post> result = serviceUnderTest.getAllPostByUserEmail(userEmail);
+        Page<PostDto> result = serviceUnderTest.getAllPostByUserEmail(userEmail,pageNumber,pageSize);
 
         assertThat(result).isNotNull();
 
-        verify(postRepository).findByUserEmail(userEmail);
+        verify(postRepository).findByUserEmail(userEmail,validation.pageAndSizeValidation(pageNumber,pageSize));
     }
 
     @Test
@@ -232,7 +271,7 @@ class PostServiceImplTest {
 
         when(userRepository.existsByEmail(userEmail)).thenReturn(false);
 
-        assertThatThrownBy(()->serviceUnderTest.getAllPostByUserEmail(userEmail))
+        assertThatThrownBy(()->serviceUnderTest.getAllPostByUserEmail(userEmail,pageNumber,pageSize))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("There is no user with Email : " + userEmail);
     }

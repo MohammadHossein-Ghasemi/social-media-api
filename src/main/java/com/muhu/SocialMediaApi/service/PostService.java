@@ -1,15 +1,16 @@
 package com.muhu.SocialMediaApi.service;
 
 import com.muhu.SocialMediaApi.entity.Post;
-
-import java.util.List;
+import com.muhu.SocialMediaApi.model.PostDto;
+import com.muhu.SocialMediaApi.model.PostRegistrationDto;
+import org.springframework.data.domain.Page;
 
 public interface PostService {
-    Post savePost(Post post);
+    PostDto savePost(PostRegistrationDto postRegistrationDto);
     Boolean deletePostById(Long postId);
-    Post updatePostById(Long postId, Post post);
-    Post getPostById(Long postId);
-    List<Post> getAllPost();
-    List<Post> getAllPostByUserId(Long userId);
-    List<Post> getAllPostByUserEmail(String userEmail);
+    PostDto updatePostById(Long postId, Post post);
+    PostDto getPostById(Long postId);
+    Page<PostDto> getAllPost(Integer page,Integer size);
+    Page<PostDto> getAllPostByUserId(Long userId,Integer page,Integer size);
+    Page<PostDto> getAllPostByUserEmail(String userEmail,Integer page,Integer size);
 }

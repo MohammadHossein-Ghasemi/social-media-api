@@ -3,14 +3,20 @@ package com.muhu.SocialMediaApi.service;
 import com.muhu.SocialMediaApi.entity.Post;
 import com.muhu.SocialMediaApi.entity.User;
 import com.muhu.SocialMediaApi.exception.ResourceNotFoundException;
+import com.muhu.SocialMediaApi.mapper.PostMapper;
+import com.muhu.SocialMediaApi.model.PostDto;
+import com.muhu.SocialMediaApi.model.PostRegistrationDto;
 import com.muhu.SocialMediaApi.repository.PostRepository;
 import com.muhu.SocialMediaApi.repository.UserRepository;
 import com.muhu.SocialMediaApi.service.validation.Validation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
+
+import static com.muhu.SocialMediaApi.mapper.PostMapper.postRegistrationDtoToPost;
+import static com.muhu.SocialMediaApi.mapper.PostMapper.postToPostDto;
 
 @Service
 @RequiredArgsConstructor
@@ -21,13 +27,13 @@ public class PostServiceImpl implements PostService {
     private final Validation validation;
 
     @Override
-    public Post savePost(Post post) {
-        User userValid = validation.isUserValid(post.getUser());
+    public PostDto savePost(PostRegistrationDto postRegistrationDto) {
+        User userValid = validation.isUserValid(postRegistrationDto.getUser());
         if (null == userValid){
             return null;
         }
-        post.setUser(userValid);
-        return postRepository.save(post);
+        postRegistrationDto.setUser(userValid);
+        return postToPostDto(postRepository.save(postRegistrationDtoToPost(postRegistrationDto)));
     }
 
     @Override
@@ -40,7 +46,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public Post updatePostById(Long postId, Post post) {
+    public PostDto updatePostById(Long postId, Post post) {
         AtomicReference<Post> updatedPost = new AtomicReference<>();
 
         postRepository.findById(postId).ifPresentOrElse(
@@ -49,34 +55,38 @@ public class PostServiceImpl implements PostService {
                     updatedPost.set(postRepository.save(foundedPost));
                 },()->{throw new ResourceNotFoundException("There is no post with ID : "+postId);}
         );
-        return updatedPost.get();
+        return postToPostDto(updatedPost.get());
     }
 
     @Override
-    public Post getPostById(Long postId) {
-        return postRepository.findById(postId)
-                .orElseThrow(()->new ResourceNotFoundException("There is no post with ID : "+postId));
+    public PostDto getPostById(Long postId) {
+        return postToPostDto(postRepository.findById(postId)
+                .orElseThrow(()->new ResourceNotFoundException("There is no post with ID : "+postId)));
     }
 
     @Override
-    public List<Post> getAllPost() {
-        return postRepository.findAll();
+    public Page<PostDto> getAllPost(Integer page,Integer size) {
+
+        return postRepository.findAll(validation.pageAndSizeValidation(page,size))
+                .map(PostMapper::postToPostDto);
     }
 
     @Override
-    public List<Post> getAllPostByUserId(Long userId) {
+    public Page<PostDto> getAllPostByUserId(Long userId,Integer page,Integer size) {
         if (!userRepository.existsById(userId)){
             throw new ResourceNotFoundException("There is no user with ID : "+userId);
         }
-        return postRepository.findByUserId(userId);
+        return postRepository.findByUserId(userId,validation.pageAndSizeValidation(page,size))
+                .map(PostMapper::postToPostDto);
     }
 
     @Override
-    public List<Post> getAllPostByUserEmail(String userEmail) {
+    public Page<PostDto> getAllPostByUserEmail(String userEmail,Integer page,Integer size) {
         if (!userRepository.existsByEmail(userEmail)){
             throw new ResourceNotFoundException("There is no user with Email : " + userEmail);
         }
-        return postRepository.findByUserEmail(userEmail);
+        return postRepository.findByUserEmail(userEmail,validation.pageAndSizeValidation(page,size))
+                .map(PostMapper::postToPostDto);
     }
 
     private void updateNonNullFields(Post updatedPost , Post inputPost){

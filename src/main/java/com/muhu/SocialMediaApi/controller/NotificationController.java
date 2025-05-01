@@ -1,20 +1,17 @@
 package com.muhu.SocialMediaApi.controller;
 
 import com.muhu.SocialMediaApi.entity.Notification;
-import com.muhu.SocialMediaApi.mapper.NotificationMapper;
 import com.muhu.SocialMediaApi.model.NotificationDto;
 import com.muhu.SocialMediaApi.model.NotificationRegistrationDto;
 import com.muhu.SocialMediaApi.service.NotificationService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Map;
-
-import static com.muhu.SocialMediaApi.mapper.NotificationMapper.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -24,8 +21,7 @@ public class NotificationController {
 
     @PostMapping("/save")
     public ResponseEntity<?> saveNotification(@RequestBody NotificationRegistrationDto notificationRDto){
-        NotificationDto savedNotif = notificationToNotificationDto(
-                notificationService.saveNotif(notificationRegistrationDtoToNotification(notificationRDto)));
+        NotificationDto savedNotif = notificationService.saveNotif(notificationRDto);
         if (null == savedNotif){
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -90,7 +86,7 @@ public class NotificationController {
     @PutMapping("/update/{notifId}")
     public ResponseEntity<?> updateNotification(@PathVariable Long notifId,
                                                 @RequestBody Notification notification){
-        NotificationDto updatedNotif = notificationToNotificationDto(notificationService.updateNotifById(notifId,notification)) ;
+        NotificationDto updatedNotif = notificationService.updateNotifById(notifId,notification);
         if (null == updatedNotif){
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -111,7 +107,7 @@ public class NotificationController {
 
     @GetMapping("/{notifId}")
     public ResponseEntity<?> getNotifById(@PathVariable Long notifId){
-        NotificationDto foundedNotif = notificationToNotificationDto(notificationService.getNotifById(notifId));
+        NotificationDto foundedNotif = notificationService.getNotifById(notifId);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .header(HttpHeaders.LOCATION,"/api/notif/"+notifId)
@@ -123,11 +119,9 @@ public class NotificationController {
     }
 
     @GetMapping("/all")
-    public ResponseEntity<?> getAllNotif(){
-        List<NotificationDto> allPost = notificationService.getAllNotif()
-                .stream()
-                .map(NotificationMapper::notificationToNotificationDto)
-                .toList();
+    public ResponseEntity<?> getAllNotif(@RequestParam(required = false) Integer page ,
+                                         @RequestParam(required = false) Integer size){
+        Page<NotificationDto> allPost = notificationService.getAllNotif(page, size);
 
         HttpStatus httpStatus = allPost.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK;
 
@@ -138,11 +132,10 @@ public class NotificationController {
     }
 
     @GetMapping("/user-id")
-    public ResponseEntity<?> getAllNotifByUserId(@RequestParam Long userId){
-        List<NotificationDto> allNotifByUserId = notificationService.getAllNotifByUserId(userId)
-                .stream()
-                .map(NotificationMapper::notificationToNotificationDto)
-                .toList();;
+    public ResponseEntity<?> getAllNotifByUserId(@RequestParam Long userId,
+                                                 @RequestParam(required = false) Integer page ,
+                                                 @RequestParam(required = false) Integer size){
+        Page<NotificationDto> allNotifByUserId = notificationService.getAllNotifByUserId(userId,page,size);
 
         HttpStatus httpStatus = allNotifByUserId.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK;
 
@@ -153,11 +146,10 @@ public class NotificationController {
     }
 
     @GetMapping("/user-email")
-    public ResponseEntity<?> getAllNotifByUserEmail(@RequestParam String userEmail){
-        List<NotificationDto> allNotifByUserEmail = notificationService.getAllNotifByUserEmail(userEmail)
-                .stream()
-                .map(NotificationMapper::notificationToNotificationDto)
-                .toList();;
+    public ResponseEntity<?> getAllNotifByUserEmail(@RequestParam String userEmail,
+                                                    @RequestParam(required = false) Integer page ,
+                                                    @RequestParam(required = false) Integer size){
+        Page<NotificationDto> allNotifByUserEmail = notificationService.getAllNotifByUserEmail(userEmail,page,size);
 
         HttpStatus httpStatus = allNotifByUserEmail.isEmpty() ? HttpStatus.NO_CONTENT : HttpStatus.OK;
 

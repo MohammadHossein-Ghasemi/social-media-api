@@ -3,14 +3,20 @@ package com.muhu.SocialMediaApi.service;
 import com.muhu.SocialMediaApi.entity.Notification;
 import com.muhu.SocialMediaApi.entity.User;
 import com.muhu.SocialMediaApi.exception.ResourceNotFoundException;
+import com.muhu.SocialMediaApi.mapper.NotificationMapper;
+import com.muhu.SocialMediaApi.model.NotificationDto;
+import com.muhu.SocialMediaApi.model.NotificationRegistrationDto;
 import com.muhu.SocialMediaApi.repository.NotificationRepository;
 import com.muhu.SocialMediaApi.repository.UserRepository;
 import com.muhu.SocialMediaApi.service.validation.Validation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
+
+import static com.muhu.SocialMediaApi.mapper.NotificationMapper.notificationRegistrationDtoToNotification;
+import static com.muhu.SocialMediaApi.mapper.NotificationMapper.notificationToNotificationDto;
 
 @Service
 @RequiredArgsConstructor
@@ -20,13 +26,14 @@ public class NotificationServiceImpl implements NotificationService {
     private final Validation validation;
 
     @Override
-    public Notification saveNotif(Notification notification){
-        User userValid = validation.isUserValid(notification.getUser());
+    public NotificationDto saveNotif(NotificationRegistrationDto notificationRegistrationDto){
+        User userValid = validation.isUserValid(notificationRegistrationDto.getUser());
         if(null == userValid){
             return null;
         }
-        notification.setUser(userValid);
-        return notificationRepository.save(notification);
+        notificationRegistrationDto.setUser(userValid);
+        return notificationToNotificationDto(notificationRepository.save(
+                notificationRegistrationDtoToNotification(notificationRegistrationDto)));
     }
 
     @Override
@@ -57,7 +64,7 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public Notification updateNotifById(Long notifId, Notification notification) {
+    public NotificationDto updateNotifById(Long notifId, Notification notification) {
         AtomicReference<Notification> updatedNotif = new AtomicReference<>();
         notificationRepository.findById(notifId).ifPresentOrElse(
                 foundedNotif->{
@@ -66,34 +73,38 @@ public class NotificationServiceImpl implements NotificationService {
                 },
                 ()-> {throw new ResourceNotFoundException("There is no post with ID : "+ notifId);}
         );
-        return updatedNotif.get();
+        return notificationToNotificationDto(updatedNotif.get());
     }
 
     @Override
-    public Notification getNotifById(Long notifId) {
-        return notificationRepository.findById(notifId)
-                .orElseThrow(()-> new ResourceNotFoundException("There is no notification with ID : "+notifId));
+    public NotificationDto getNotifById(Long notifId) {
+        return notificationToNotificationDto(notificationRepository.findById(notifId)
+                .orElseThrow(()-> new ResourceNotFoundException("There is no notification with ID : "+notifId)));
     }
 
     @Override
-    public List<Notification> getAllNotif() {
-        return notificationRepository.findAll();
+    public Page<NotificationDto> getAllNotif(Integer page, Integer size) {
+
+        return notificationRepository.findAll(validation.pageAndSizeValidation(page, size))
+                .map(NotificationMapper::notificationToNotificationDto);
     }
 
     @Override
-    public List<Notification> getAllNotifByUserId(Long userId) {
+    public Page<NotificationDto> getAllNotifByUserId(Long userId,Integer page, Integer size) {
         if (!userRepository.existsById(userId)){
             throw new ResourceNotFoundException("There is no user with ID : "+userId);
         }
-        return notificationRepository.findByUserId(userId);
+        return notificationRepository.findByUserId(userId,validation.pageAndSizeValidation(page, size))
+                .map(NotificationMapper::notificationToNotificationDto);
     }
 
     @Override
-    public List<Notification> getAllNotifByUserEmail(String userEmail) {
+    public Page<NotificationDto> getAllNotifByUserEmail(String userEmail,Integer page, Integer size) {
         if (!userRepository.existsByEmail(userEmail)){
             throw new ResourceNotFoundException("There is no user with Email : " + userEmail);
         }
-        return notificationRepository.findByUserEmail(userEmail);
+        return notificationRepository.findByUserEmail(userEmail,validation.pageAndSizeValidation(page, size))
+                .map(NotificationMapper::notificationToNotificationDto);
     }
 
     private void updateNonNullFields(Notification updatedNotif , Notification inputNotif){

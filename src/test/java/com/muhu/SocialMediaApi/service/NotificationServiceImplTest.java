@@ -3,6 +3,8 @@ package com.muhu.SocialMediaApi.service;
 import com.muhu.SocialMediaApi.entity.Notification;
 import com.muhu.SocialMediaApi.entity.User;
 import com.muhu.SocialMediaApi.exception.ResourceNotFoundException;
+import com.muhu.SocialMediaApi.model.NotificationDto;
+import com.muhu.SocialMediaApi.model.NotificationRegistrationDto;
 import com.muhu.SocialMediaApi.repository.NotificationRepository;
 import com.muhu.SocialMediaApi.repository.UserRepository;
 import com.muhu.SocialMediaApi.service.validation.Validation;
@@ -11,6 +13,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 
 import java.util.List;
 import java.util.Optional;
@@ -26,7 +30,7 @@ class NotificationServiceImplTest {
     private NotificationServiceImpl serviceUnderTest;
 
     @Mock
-    Validation Validation;
+    Validation validation;
     @Mock
     UserRepository userRepository;
     @Mock
@@ -34,10 +38,13 @@ class NotificationServiceImplTest {
 
     AutoCloseable autoCloseable;
 
+    private final int pageNumber=0;
+    private final int pageSize=5;
+
     @BeforeEach
     void setUp(){
         autoCloseable = MockitoAnnotations.openMocks(this);
-        serviceUnderTest = new NotificationServiceImpl(notificationRepository,userRepository, Validation);
+        serviceUnderTest = new NotificationServiceImpl(notificationRepository,userRepository, validation);
     }
 
     @AfterEach
@@ -53,19 +60,24 @@ class NotificationServiceImplTest {
                 .password("asfbbgfbgnhmj,hgmhng")
                 .build();
         Notification notification = Notification.builder()
+                .id(14L)
+                .message("Test Message !!")
+                .user(user)
+                .build();
+        NotificationRegistrationDto notificationRegistrationDto = NotificationRegistrationDto.builder()
                 .message("Test Message !!")
                 .user(user)
                 .build();
 
-        when(Validation.isUserValid(user)).thenReturn(user);
-        when(notificationRepository.save(notification)).thenReturn(notification);
+        when(validation.isUserValid(user)).thenReturn(user);
+        when(notificationRepository.save(any(Notification.class))).thenReturn(notification);
 
-        Notification result = serviceUnderTest.saveNotif(notification);
+        NotificationDto result = serviceUnderTest.saveNotif(notificationRegistrationDto);
 
         assertThat(result).isNotNull();
-        assertThat(result).isEqualTo(notification);
+        assertThat(result.getId()).isEqualTo(notification.getId());
 
-        verify(notificationRepository).save(notification);
+        verify(notificationRepository).save(any(Notification.class));
     }
 
     @Test
@@ -76,14 +88,19 @@ class NotificationServiceImplTest {
                 .password("asfbbgfbgnhmj,hgmhng")
                 .build();
         Notification notification = Notification.builder()
+                .id(14L)
+                .message("Test Message !!")
+                .user(user)
+                .build();
+        NotificationRegistrationDto notificationRegistrationDto = NotificationRegistrationDto.builder()
                 .message("Test Message !!")
                 .user(user)
                 .build();
 
-        when(Validation.isUserValid(user)).thenReturn(null);
-        when(notificationRepository.save(notification)).thenReturn(notification);
+        when(validation.isUserValid(user)).thenReturn(null);
+        when(notificationRepository.save(any(Notification.class))).thenReturn(notification);
 
-        Notification result = serviceUnderTest.saveNotif(notification);
+        NotificationDto result = serviceUnderTest.saveNotif(notificationRegistrationDto);
 
         assertThat(result).isNull();
     }
@@ -162,22 +179,33 @@ class NotificationServiceImplTest {
 
     @Test
     void updateNotifById() {
+        User user = User.builder()
+                .id(14L)
+                .username("muhu")
+                .email("muhu@emaple.com")
+                .password("asfbbgfbgnhmj,hgmhng")
+                .build();
+
         Notification existingNotif = Notification
                 .builder()
                 .id(14L)
                 .message("Test Message !!")
+                .user(user)
                 .build();
 
         Notification updatedNotif = Notification
                 .builder()
                 .id(14L)
                 .message("New Test Message !!")
+                .user(user)
                 .build();
 
+        when(userRepository.existsByEmail(user.getEmail())).thenReturn(true);
+        when(userRepository.existsById(user.getId())).thenReturn(true);
         when(notificationRepository.findById(existingNotif.getId())).thenReturn(Optional.of(existingNotif));
         when(notificationRepository.save(any(Notification.class))).thenReturn(existingNotif);
 
-        Notification result = serviceUnderTest.updateNotifById(existingNotif.getId(), updatedNotif);
+        NotificationDto result = serviceUnderTest.updateNotifById(existingNotif.getId(), updatedNotif);
 
         assertThat(result).isNotNull();
         assertThat(result.getMessage()).isEqualTo(updatedNotif.getMessage());
@@ -209,15 +237,21 @@ class NotificationServiceImplTest {
 
     @Test
     void getNotifById() {
+        User user = User.builder()
+                .username("muhu")
+                .email("muhu@emaple.com")
+                .password("asfbbgfbgnhmj,hgmhng")
+                .build();
         Notification notification = Notification
                 .builder()
                 .id(14L)
                 .message("Test Message !!")
+                .user(user)
                 .build();
 
         when(notificationRepository.findById(notification.getId())).thenReturn(Optional.of(notification));
 
-        Notification result = serviceUnderTest.getNotifById(notification.getId());
+        NotificationDto result = serviceUnderTest.getNotifById(notification.getId());
 
         assertThat(result).isNotNull();
 
@@ -241,21 +275,25 @@ class NotificationServiceImplTest {
 
     @Test
     void getAllNotif() {
-        serviceUnderTest.getAllNotif();
-        verify(notificationRepository).findAll();
+        Page<Notification> notificationPage = new PageImpl<>(List.of());
+        when(notificationRepository.findAll(validation.pageAndSizeValidation(pageNumber,pageSize))).thenReturn(notificationPage);
+        serviceUnderTest.getAllNotif(pageNumber,pageSize);
+        verify(notificationRepository).findAll(validation.pageAndSizeValidation(pageNumber,pageSize));
     }
 
     @Test
     void getAllNotifByUserId() {
         Long userId = 14L;
+        Page<Notification> notificationPage = new PageImpl<>(List.of());
 
         when(userRepository.existsById(userId)).thenReturn(true);
-
-        List<Notification> result = serviceUnderTest.getAllNotifByUserId(userId);
+        when(notificationRepository.findByUserId(userId,validation.pageAndSizeValidation(pageNumber,pageSize)))
+                .thenReturn(notificationPage);
+        Page<NotificationDto> result = serviceUnderTest.getAllNotifByUserId(userId,pageNumber,pageSize);
 
         assertThat(result).isNotNull();
 
-        verify(notificationRepository).findByUserId(userId);
+        verify(notificationRepository).findByUserId(userId,validation.pageAndSizeValidation(pageNumber,pageSize));
     }
 
     @Test
@@ -264,7 +302,7 @@ class NotificationServiceImplTest {
 
         when(userRepository.existsById(userId)).thenReturn(false);
 
-        assertThatThrownBy(()->serviceUnderTest.getAllNotifByUserId(userId))
+        assertThatThrownBy(()->serviceUnderTest.getAllNotifByUserId(userId,pageNumber,pageSize))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("There is no user with ID : " + userId);
     }
@@ -272,14 +310,17 @@ class NotificationServiceImplTest {
     @Test
     void getAllNotifByUserEmail() {
         String userEmail = "test@example.com";
+        Page<Notification> notificationPage = new PageImpl<>(List.of());
 
         when(userRepository.existsByEmail(userEmail)).thenReturn(true);
+        when(notificationRepository.findByUserEmail(userEmail,validation.pageAndSizeValidation(pageNumber,pageSize)))
+                .thenReturn(notificationPage);
 
-        List<Notification> result = serviceUnderTest.getAllNotifByUserEmail(userEmail);
+        Page<NotificationDto> result = serviceUnderTest.getAllNotifByUserEmail(userEmail,pageNumber,pageSize);
 
         assertThat(result).isNotNull();
 
-        verify(notificationRepository).findByUserEmail(userEmail);
+        verify(notificationRepository).findByUserEmail(userEmail,validation.pageAndSizeValidation(pageNumber,pageSize));
     }
 
     @Test
@@ -288,7 +329,7 @@ class NotificationServiceImplTest {
 
         when(userRepository.existsByEmail(userEmail)).thenReturn(false);
 
-        assertThatThrownBy(()->serviceUnderTest.getAllNotifByUserEmail(userEmail))
+        assertThatThrownBy(()->serviceUnderTest.getAllNotifByUserEmail(userEmail,pageNumber,pageSize))
                 .isInstanceOf(ResourceNotFoundException.class)
                 .hasMessageContaining("There is no user with Email : " + userEmail);
     }

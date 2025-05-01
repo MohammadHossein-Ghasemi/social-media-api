@@ -6,6 +6,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 
 import java.util.List;
 import java.util.Optional;
@@ -21,6 +23,8 @@ class NotificationRepositoryTest {
 
     @Autowired
     UserRepository userRepository;
+
+    private final PageRequest pageRequest = PageRequest.of(0,5);
 
     @Test
     void findAll() {
@@ -105,10 +109,10 @@ class NotificationRepositoryTest {
         assertThat(savedNotification).isNotNull();
         assertThat(savedNotification.getId()).isNotNull();
 
-        List<Notification> postList = repositoryUnderTest.findByUserId(savedUser.getId());
+        Page<Notification> postList = repositoryUnderTest.findByUserId(savedUser.getId(),pageRequest);
 
         assertThat(postList).isNotNull();
-        assertThat(postList.size()).isEqualTo(1);
+        assertThat(postList.getTotalElements()).isEqualTo(1);
     }
 
     @Test
@@ -135,10 +139,10 @@ class NotificationRepositoryTest {
         assertThat(savedNotification).isNotNull();
         assertThat(savedNotification.getId()).isNotNull();
 
-        List<Notification> postList = repositoryUnderTest.findByUserEmail(savedUser.getEmail());
+        Page<Notification> postList = repositoryUnderTest.findByUserEmail(savedUser.getEmail(),pageRequest);
 
         assertThat(postList).isNotNull();
-        assertThat(postList.size()).isEqualTo(1);
+        assertThat(postList.getTotalElements()).isEqualTo(1);
     }
 
     @Test

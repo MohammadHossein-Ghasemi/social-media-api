@@ -1,6 +1,8 @@
 package com.muhu.SocialMediaApi.config;
 
 import com.muhu.SocialMediaApi.config.filter.JwtTokenValidatorFilter;
+import com.muhu.SocialMediaApi.exception.CustomAccessDeniedHandler;
+import com.muhu.SocialMediaApi.exception.CustomAuthenticationEntryPoint;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -38,6 +40,8 @@ public class ProjectSecurityConfig {
 
         );
         httpSecurity.addFilterBefore(new JwtTokenValidatorFilter(), BasicAuthenticationFilter.class);
+        httpSecurity.httpBasic(e->e.authenticationEntryPoint(new CustomAuthenticationEntryPoint()));
+        httpSecurity.exceptionHandling(e->e.accessDeniedHandler(new CustomAccessDeniedHandler()));
         return httpSecurity.build();
     }
 

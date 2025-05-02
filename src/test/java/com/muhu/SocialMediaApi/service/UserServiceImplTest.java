@@ -1,8 +1,12 @@
 package com.muhu.SocialMediaApi.service;
 
+import com.muhu.SocialMediaApi.entity.Authority;
 import com.muhu.SocialMediaApi.entity.User;
 import com.muhu.SocialMediaApi.exception.DuplicateException;
 import com.muhu.SocialMediaApi.exception.ResourceNotFoundException;
+import com.muhu.SocialMediaApi.model.UserDto;
+import com.muhu.SocialMediaApi.model.UserRegistrationDto;
+import com.muhu.SocialMediaApi.repository.AuthorityRepository;
 import com.muhu.SocialMediaApi.repository.UserRepository;
 import com.muhu.SocialMediaApi.service.validation.Validation;
 import org.junit.jupiter.api.AfterEach;
@@ -31,6 +35,8 @@ class UserServiceImplTest {
     private UserRepository userRepository;
     @Mock
     private Validation validation;
+    @Mock
+    private AuthorityRepository authorityRepository;
 
     private final int pageSize=5;
     private final int pageNumber=0;
@@ -38,7 +44,7 @@ class UserServiceImplTest {
     @BeforeEach
     void setUp(){
        autoCloseable = MockitoAnnotations.openMocks(this);
-       serviceUnderTest = new UserServiceImpl(userRepository,validation);
+       serviceUnderTest = new UserServiceImpl(userRepository,validation,authorityRepository);
     }
 
     @AfterEach
@@ -49,23 +55,34 @@ class UserServiceImplTest {
     @Test
     void saveUser() {
         User user = User.builder()
+                .id(14L)
                 .username("muhu")
                 .email("muhu@emaple.com")
                 .password("asfbbgfbgnhmj,hgmhng")
                 .build();
+        UserRegistrationDto userRegistrationDto = UserRegistrationDto.builder()
+                .username("muhu")
+                .email("muhu@emaple.com")
+                .password("asfbbgfbgnhmj,hgmhng")
+                .build();
+        Authority authority = Authority.builder()
+                .user(user)
+                .name("ROLE_USER")
+                .build();
 
         when(userRepository.existsByEmail(any(String.class))).thenReturn(false);
-        when(userRepository.save(user)).thenReturn(user);
+        when(userRepository.save(any(User.class))).thenReturn(user);
+        when(authorityRepository.save(any(Authority.class))).thenReturn(authority);
 
-        User result = serviceUnderTest.saveUser(user);
+        UserDto result = serviceUnderTest.saveUser(userRegistrationDto);
 
         assertThat(result).isNotNull();
 
-        verify(userRepository).save(user);
+        verify(userRepository).save(any(User.class));
     }
     @Test
     void saveUserWhenUserIsDuplicate() {
-        User user = User.builder()
+        UserRegistrationDto userRegistrationDto = UserRegistrationDto.builder()
                 .username("muhu")
                 .email("muhu@emaple.com")
                 .password("asfbbgfbgnhmj,hgmhng")
@@ -73,7 +90,7 @@ class UserServiceImplTest {
 
         when(userRepository.existsByEmail(any(String.class))).thenReturn(true);
 
-        assertThatThrownBy(()->serviceUnderTest.saveUser(user))
+        assertThatThrownBy(()->serviceUnderTest.saveUser(userRegistrationDto))
                 .isInstanceOf(DuplicateException.class)
                 .hasMessageContaining("This user is already exists.");
     }
@@ -142,7 +159,7 @@ class UserServiceImplTest {
         when(userRepository.save(any(User.class))).thenReturn(existingUser);
 
 
-        User result = serviceUnderTest.updateUser(existingUser.getEmail(), updatedUser);
+        UserDto result = serviceUnderTest.updateUser(existingUser.getEmail(), updatedUser);
 
         assertThat(result).isNotNull();
         assertThat(result.getId()).isEqualTo(1L);
@@ -192,10 +209,10 @@ class UserServiceImplTest {
 
         when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
 
-        User result = serviceUnderTest.getUserById(user.getId());
+        UserDto result = serviceUnderTest.getUserById(user.getId());
 
         assertThat(result).isNotNull();
-        assertThat(result).isEqualTo(user);
+        assertThat(result.getId()).isEqualTo(user.getId());
 
         verify(userRepository).findById(user.getId());
     }
@@ -226,10 +243,10 @@ class UserServiceImplTest {
 
         when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
 
-        User result = serviceUnderTest.getUserByEmail(user.getEmail());
+        UserDto result = serviceUnderTest.getUserByEmail(user.getEmail());
 
         assertThat(result).isNotNull();
-        assertThat(result).isEqualTo(user);
+        assertThat(result.getId()).isEqualTo(user.getId());
 
         verify(userRepository).findByEmail(user.getEmail());
     }

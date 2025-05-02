@@ -26,9 +26,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.muhu.SocialMediaApi.mapper.UserMapper.userRegistrationDtoToUser;
-import static com.muhu.SocialMediaApi.mapper.UserMapper.userToUserDto;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/user")
@@ -42,7 +39,7 @@ public class UserController {
     public ResponseEntity<?> userRegistration(@RequestBody UserRegistrationDto userRegistrationDto){
         String password = passwordEncoder.encode(userRegistrationDto.getPassword());
         userRegistrationDto.setPassword(password);
-        UserDto savedUser = userToUserDto(userService.saveUser(userRegistrationDtoToUser(userRegistrationDto)));
+        UserDto savedUser = userService.saveUser(userRegistrationDto);
         if (null == savedUser){
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -92,7 +89,7 @@ public class UserController {
     @PutMapping("/update")
     public ResponseEntity<?> updateUser(@RequestParam String userEmail,
                                         @RequestBody User user){
-        UserDto updatedUser = userToUserDto(userService.updateUser(userEmail, user)) ;
+        UserDto updatedUser = userService.updateUser(userEmail, user) ;
         if (null == updatedUser){
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -128,7 +125,7 @@ public class UserController {
 
     @GetMapping("/{userId}")
     public ResponseEntity<?> getUserById(@PathVariable Long userId){
-        UserDto foundedUser = userToUserDto(userService.getUserById(userId));
+        UserDto foundedUser = userService.getUserById(userId);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .header(HttpHeaders.LOCATION,"/api/user/"+userId)
@@ -141,7 +138,7 @@ public class UserController {
 
     @GetMapping()
     public ResponseEntity<?> getUserByEmail(@RequestParam String userEmail){
-        UserDto foundedUser = userToUserDto(userService.getUserByEmail(userEmail));
+        UserDto foundedUser = userService.getUserByEmail(userEmail);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .header(HttpHeaders.LOCATION,"/api/user/")

@@ -6,6 +6,7 @@ import com.muhu.SocialMediaApi.exception.DuplicateException;
 import com.muhu.SocialMediaApi.exception.ResourceNotFoundException;
 import com.muhu.SocialMediaApi.mapper.UserMapper;
 import com.muhu.SocialMediaApi.model.UserDto;
+import com.muhu.SocialMediaApi.model.UserRegistrationDto;
 import com.muhu.SocialMediaApi.repository.AuthorityRepository;
 import com.muhu.SocialMediaApi.repository.UserRepository;
 import com.muhu.SocialMediaApi.service.validation.Validation;
@@ -16,6 +17,8 @@ import org.springframework.stereotype.Service;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static com.muhu.SocialMediaApi.mapper.UserMapper.*;
+
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
@@ -24,17 +27,17 @@ public class UserServiceImpl implements UserService {
     private final AuthorityRepository authorityRepository;
 
     @Override
-    public User saveUser(User user) {
-        if (userRepository.existsByEmail(user.getEmail())){
+    public UserDto saveUser(UserRegistrationDto userRegistrationDto) {
+        if (userRepository.existsByEmail(userRegistrationDto.getEmail())){
             throw new DuplicateException();
         }
-        User savedUser = userRepository.save(user);
+        User savedUser = userRepository.save(userRegistrationDtoToUser(userRegistrationDto));
         Authority roleUser = authorityRepository.save(Authority.builder()
                 .name("ROLE_USER")
                 .user(savedUser)
                 .build());
         savedUser.setAuthorities(Set.of(roleUser));
-        return savedUser;
+        return userToUserDto(savedUser);
     }
 
     @Override
@@ -56,7 +59,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User updateUser(String email, User user) {
+    public UserDto updateUser(String email, User user) {
         AtomicReference<User> updatedUser= new AtomicReference<>();
 
           userRepository.findByEmail(email).ifPresentOrElse(
@@ -67,7 +70,7 @@ public class UserServiceImpl implements UserService {
                 ()-> {throw new ResourceNotFoundException("There is no user with Email : " + email+
                         " and ID : "+user.getId());}
         );
-        return updatedUser.get();
+        return userToUserDto(updatedUser.get());
     }
 
     @Override
@@ -77,15 +80,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User getUserById(Long userId) {
-        return userRepository.findById(userId).orElseThrow(() ->
-                new ResourceNotFoundException("There is no user with ID : "+userId));
+    public UserDto getUserById(Long userId) {
+        return userToUserDto(userRepository.findById(userId).orElseThrow(() ->
+                new ResourceNotFoundException("There is no user with ID : "+userId)));
     }
 
     @Override
-    public User getUserByEmail(String email) {
-        return userRepository.findByEmail(email).orElseThrow(()->
-                new ResourceNotFoundException("There is no user with Email : " + email));
+    public UserDto getUserByEmail(String email) {
+        return userToUserDto(userRepository.findByEmail(email).orElseThrow(()->
+                new ResourceNotFoundException("There is no user with Email : " + email)));
     }
 
     @Override

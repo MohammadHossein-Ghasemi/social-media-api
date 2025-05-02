@@ -2,16 +2,17 @@ package com.muhu.SocialMediaApi.service;
 
 import com.muhu.SocialMediaApi.entity.User;
 import com.muhu.SocialMediaApi.model.UserDto;
+import com.muhu.SocialMediaApi.model.UserRegistrationDto;
 import org.springframework.data.domain.Page;
 
 public interface UserService {
-    User saveUser(User user);
+    UserDto saveUser(UserRegistrationDto userRegistrationDto);
     Boolean deleteUserById(Long userId);
     Boolean deleteUserByEmail(String email);
-    User updateUser(String email,User user);
+    UserDto updateUser(String email,User user);
     Page<UserDto> getAllUser(Integer page , Integer size);
-    User getUserById(Long userId);
-    User getUserByEmail(String email);
+    UserDto getUserById(Long userId);
+    UserDto getUserByEmail(String email);
     Page<UserDto> getAllUserFollowersById(Long userId,Integer page , Integer size);
     Page<UserDto> getAllUserFollowingById(Long userId,Integer page , Integer size);
     Page<UserDto> getAllUserFollowersByEmail(String email, Integer page , Integer size);

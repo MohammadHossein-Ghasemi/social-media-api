@@ -74,4 +74,7 @@ public class User {
     @OneToMany(mappedBy = "user",cascade = CascadeType.ALL)
     private Set<Comment> comments;
 
+    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL)
+    private Set<Authority> authorities;
+
 }

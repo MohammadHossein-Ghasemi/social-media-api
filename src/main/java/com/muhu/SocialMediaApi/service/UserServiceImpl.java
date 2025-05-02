@@ -1,16 +1,19 @@
 package com.muhu.SocialMediaApi.service;
 
+import com.muhu.SocialMediaApi.entity.Authority;
 import com.muhu.SocialMediaApi.entity.User;
 import com.muhu.SocialMediaApi.exception.DuplicateException;
 import com.muhu.SocialMediaApi.exception.ResourceNotFoundException;
 import com.muhu.SocialMediaApi.mapper.UserMapper;
 import com.muhu.SocialMediaApi.model.UserDto;
+import com.muhu.SocialMediaApi.repository.AuthorityRepository;
 import com.muhu.SocialMediaApi.repository.UserRepository;
 import com.muhu.SocialMediaApi.service.validation.Validation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
 @Service
@@ -18,13 +21,20 @@ import java.util.concurrent.atomic.AtomicReference;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final Validation validation;
+    private final AuthorityRepository authorityRepository;
 
     @Override
     public User saveUser(User user) {
         if (userRepository.existsByEmail(user.getEmail())){
             throw new DuplicateException();
         }
-        return userRepository.save(user);
+        User savedUser = userRepository.save(user);
+        Authority roleUser = authorityRepository.save(Authority.builder()
+                .name("ROLE_USER")
+                .user(savedUser)
+                .build());
+        savedUser.setAuthorities(Set.of(roleUser));
+        return savedUser;
     }
 
     @Override

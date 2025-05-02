@@ -1,5 +1,6 @@
 package com.muhu.SocialMediaApi.model;
 
+import com.muhu.SocialMediaApi.entity.Authority;
 import lombok.*;
 import org.springframework.stereotype.Component;
 
@@ -24,4 +25,5 @@ public class UserDto {
     private Set<Long> likeId;
     private Set<NotificationDto> notifications;
     private Set<Long> commentId;
+    private Set<Authority> authorities;
 }

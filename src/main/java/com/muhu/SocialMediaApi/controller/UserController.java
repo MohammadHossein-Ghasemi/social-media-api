@@ -1,17 +1,30 @@
 package com.muhu.SocialMediaApi.controller;
 
 import com.muhu.SocialMediaApi.entity.User;
+import com.muhu.SocialMediaApi.model.LoginRequestDto;
+import com.muhu.SocialMediaApi.model.LoginResponseDto;
 import com.muhu.SocialMediaApi.model.UserDto;
 import com.muhu.SocialMediaApi.model.UserRegistrationDto;
 import com.muhu.SocialMediaApi.service.UserService;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.env.Environment;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.muhu.SocialMediaApi.mapper.UserMapper.userRegistrationDtoToUser;
 import static com.muhu.SocialMediaApi.mapper.UserMapper.userToUserDto;
@@ -21,9 +34,14 @@ import static com.muhu.SocialMediaApi.mapper.UserMapper.userToUserDto;
 @RequestMapping("/api/user")
 public class UserController {
     private final UserService userService;
+    private final AuthenticationManager authenticationManager;
+    private final Environment env;
+    private final PasswordEncoder passwordEncoder;
 
     @PostMapping("/register")
     public ResponseEntity<?> userRegistration(@RequestBody UserRegistrationDto userRegistrationDto){
+        String password = passwordEncoder.encode(userRegistrationDto.getPassword());
+        userRegistrationDto.setPassword(password);
         UserDto savedUser = userToUserDto(userService.saveUser(userRegistrationDtoToUser(userRegistrationDto)));
         if (null == savedUser){
             return ResponseEntity
@@ -180,5 +198,34 @@ public class UserController {
                 .status(status)
                 .header(HttpHeaders.LOCATION,"/api/user/following")
                 .body(allUserFollowingById.isEmpty() ? "There is no user to display." : allUserFollowingById );
+    }
+    @PostMapping("/login")
+    public ResponseEntity<?> loginApi(@RequestBody LoginRequestDto loginRequestDto){
+        String jwt = "";
+        Authentication authentication = UsernamePasswordAuthenticationToken.unauthenticated(loginRequestDto.username(),
+                loginRequestDto.password());
+        Authentication authenticateResponse = authenticationManager.authenticate(authentication);
+        if (null != authenticateResponse && authenticateResponse.isAuthenticated()){
+            if (null != env){
+                String secret = env.getProperty("JWT_SECRET","jxgEQeXHuPq8VdbyYFNkANdudQ53YUn4");
+
+                SecretKey secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+
+                jwt= Jwts.builder()
+                        .issuer("muhu")
+                        .subject("Jwt Token")
+                        .claim("username", authenticateResponse.getName())
+                        .claim("authorities",authenticateResponse.getAuthorities().stream()
+                                .map(GrantedAuthority::getAuthority)
+                                .collect(Collectors.joining(".")))
+                        .issuedAt(new java.util.Date())
+                        .expiration(new java.util.Date(new java.util.Date().getTime()+3000000))
+                        .signWith(secretKey).compact();
+            }
+        }
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .header(HttpHeaders.AUTHORIZATION,jwt)
+                .body(new LoginResponseDto(HttpStatus.OK.getReasonPhrase(),jwt));
     }
 }

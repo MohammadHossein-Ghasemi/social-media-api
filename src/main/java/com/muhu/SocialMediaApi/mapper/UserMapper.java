@@ -1,5 +1,6 @@
 package com.muhu.SocialMediaApi.mapper;
 
+import com.muhu.SocialMediaApi.entity.Authority;
 import com.muhu.SocialMediaApi.entity.Comment;
 import com.muhu.SocialMediaApi.entity.Like;
 import com.muhu.SocialMediaApi.entity.User;
@@ -28,6 +29,13 @@ public class UserMapper {
         Set<NotificationDto> notificationDtos;
         Set<Long> likeId;
         Set<Long> commentId;
+        Set<Authority> authorities;
+
+        if (null != user.getAuthorities()){
+            authorities=user.getAuthorities();
+        }else {
+            authorities=Set.of();
+        }
 
         if (null != user.getComments()){
             commentId=user.getComments().stream()
@@ -91,6 +99,7 @@ public class UserMapper {
                 .likeId(likeId)
                 .notifications(notificationDtos)
                 .commentId(commentId)
+                .authorities(authorities)
                 .build();
     }
 

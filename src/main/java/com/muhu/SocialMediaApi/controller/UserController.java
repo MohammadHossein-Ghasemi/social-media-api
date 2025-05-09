@@ -141,7 +141,7 @@ public class UserController {
         UserDto foundedUser = userService.getUserByEmail(userEmail);
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .header(HttpHeaders.LOCATION,"/api/user/")
+                .header(HttpHeaders.LOCATION,"/api/user")
                 .body(Map.of(
                         "status","success",
                         "message","User founded successfully.",

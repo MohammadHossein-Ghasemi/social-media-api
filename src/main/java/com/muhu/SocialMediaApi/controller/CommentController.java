@@ -43,18 +43,18 @@ public class CommentController {
         if (!isCommentDelete){
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .header(HttpHeaders.LOCATION,"/api/comment/delete"+commentId)
+                    .header(HttpHeaders.LOCATION,"/api/comment/delete/"+commentId)
                     .body("There is problem on deleting comment.");
         }
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .header(HttpHeaders.LOCATION,"/api/comment/delete"+commentId)
+                .header(HttpHeaders.LOCATION,"/api/comment/delete/"+commentId)
                 .body("The comment with ID "+ commentId +" was deleted.");
 
     }
 
     @DeleteMapping("/delete/user-email")
-    public ResponseEntity<?> deleteCommentByUserEmail(@RequestParam String userEmail){
+    public ResponseEntity<?> deleteCommentByPostId(@RequestParam String userEmail){
         Boolean isCommentDelete = commentService.deleteCommentByUserEmail(userEmail);
         if (!isCommentDelete){
             return ResponseEntity
@@ -69,7 +69,7 @@ public class CommentController {
     }
 
     @DeleteMapping("/delete/post-id")
-    public ResponseEntity<?> deleteCommentByUserEmail(@RequestParam Long postId){
+    public ResponseEntity<?> deleteCommentByPostId(@RequestParam Long postId){
         Boolean isCommentDelete = commentService.deleteCommentByPostId(postId);
         if (!isCommentDelete){
             return ResponseEntity
@@ -91,13 +91,13 @@ public class CommentController {
         if (null == updateComment){
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .header(HttpHeaders.LOCATION,"/api/comment/update"+commentId)
+                    .header(HttpHeaders.LOCATION,"/api/comment/update/"+commentId)
                     .body("There is problem on updating comment");
         }
 
         return ResponseEntity
                 .status(HttpStatus.OK)
-                .header(HttpHeaders.LOCATION,"/api/comment/update"+commentId)
+                .header(HttpHeaders.LOCATION,"/api/comment/update/"+commentId)
                 .body(Map.of(
                         "status","success",
                         "message","Comment updated successfully.",
